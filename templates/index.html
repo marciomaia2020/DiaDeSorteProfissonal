@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia de Sorte - Analise Profissional Avancada</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* CSS INLINE BACKUP - Caso o arquivo não carregue */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #d4b31a, #f1c40f);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(212, 179, 26, 0.4);
+        }
+        
+        .numero {
+            width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #d4b31a, #f1c40f);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0.25rem;
+        }
+        
+        /* Regras obrigatórias */
+        .regras-validacao {
+            background: linear-gradient(135deg, #d4f4dd, #a8e6cf);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 3px solid #27ae60;
+            margin: 2rem 0;
+            box-shadow: 0 8px 24px rgba(39, 174, 96, 0.2);
+        }
+        
+        .regra-obrigatoria {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            border: 3px solid #4caf50;
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .regra-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+        
+        .regra-opcional {
+            border-color: #2196f3;
+            background: linear-gradient(135deg, #fff, #e3f2fd);
+        }
+        
+        /* Análise sutil do último sorteio */
+        .analise-sutil {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(52, 73, 94, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .analise-linha {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+        
+        .analise-item {
+            font-size: 0.75rem;
+            color: #5a6c7d;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(52, 73, 94, 0.1);
+            font-weight: 500;
+            text-align: center;
+            min-width: 80px;
+        }
+		<style>
+/* CORREÇÃO IMEDIATA DE VISIBILIDADE DO TEXTO */
+
+/* Forçar texto escuro em todos os elementos principais */
+body, html, p, span, div, label, strong {
+    color: #2c3e50 !important;
+}
+
+/* Títulos sempre escuros */
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50 !important;
+}
+
+/* Exceções para fundos escuros */
+.secao-ultimo-sorteio h2,
+.secao-ultimo-sorteio p,
+.secao-ultimo-sorteio span,
+.secao-ultimo-sorteio strong,
+.palpites-header h3,
+.palpites-header p,
+.palpites-header span,
+.secao-exportacao h2,
+.secao-exportacao p,
+.secao-exportacao h4,
+.footer h4,
+.footer p,
+.footer li {
+    color: white !important;
+}
+
+/* Legenda com fundo claro */
+.legenda-cores {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.legenda-item {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.ultimo-sorteio-ref {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #2c3e50 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Garantir contraste em todas as seções */
+section {
+    color: #2c3e50 !important;
+}
+
+.card, .configuracoes-card, .analises-card {
+    color: #2c3e50 !important;
+}
+
+/* Modal */
+.modal-body {
+    color: #2c3e50 !important;
+}
+
+/* Informações específicas */
+.gatilho-info.ativo h5,
+.gatilho-info.ativo p {
+    color: #6f42c1 !important;
+}
+
+.mes-sorte-info h5,
+.mes-sorte-info p {
+    color: #155724 !important;
+}
+
+.regras-obrigatorias h5 {
+    color: #155724 !important;
+}
+
+/* Fix para qualquer texto invisível */
+* {
+    text-shadow: none !important;
+}
+</style>
+    </style>
+</head>
+<body>
+    <header>
+        <h1>DIA DE SORTE - ANALISE PROFISSIONAL AVANCADA</h1>
+        <p>Sistema inteligente com análises estatísticas e regras personalizáveis</p>
+        <button onclick="abrirModalRegras()" class="btn btn-info">📋 Ver Regras dos Palpites</button>
+    </header>
+    
+    <div class="logo"></div>
+    
+    <main class="container">
+        <!-- Último Resultado -->
+        <section class="card">
+            <h2>📊 Ultimo Sorteio</h2>
+            {% if latest_data %}
+            <div class="ultimo-resultado">
+                <div class="info">
+                    <span><strong>Concurso:</strong> {{ latest_data.numero }}</span>
+                    <span><strong>Data:</strong> {{ latest_data.dataApuracao }}</span>
+                    <span><strong>Mes da Sorte:</strong> {{ latest_data.nomeTimeCoracaoMesSorte }}</span>
+                </div>
+                <div class="dezenas">
+                    {% for dezena in latest_data.listaDezenas %}
+                    <span class="numero">{{ dezena }}</span>
+                    {% endfor %}
+                </div>
+                
+                <!-- Análise sutil das regras aplicadas -->
+                <div class="analise-sutil">
+                    <!-- Linha 1: Resumida apenas contagens -->
+                    <div class="analise-linha">
+                        <span class="analise-item" id="analise-pares-resumo"></span>
+                        <span class="analise-item" id="analise-finais-resumo"></span>
+                        <span class="analise-item" id="analise-sequencias-resumo"></span>
+                        <span class="analise-item" id="analise-distribuicao-resumo"></span>
+                        <span class="analise-item" id="analise-dezenas-resumo" style="display: none;"></span>
+                    </div>
+                    <!-- Linha 2: Detalhada com números -->
+                    <div class="analise-linha">
+                        <span class="analise-item" id="analise-pares-detalhe"></span>
+                        <span class="analise-item" id="analise-finais-detalhe"></span>
+                        <span class="analise-item" id="analise-sequencias-detalhe"></span>
+                        <span class="analise-item" id="analise-distribuicao-detalhe"></span>
+                        <span class="analise-item" id="analise-dezenas-detalhe" style="display: none;"></span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+        
+        <!-- Carregar Dados -->
+        <section class="card">
+            <h2>⚙️ Controles do Sistema</h2>
+            <div class="controles">
+                <button onclick="carregarHistorico()" class="btn btn-primary">📥 Carregar Historico Completo</button>
+                <button onclick="abrirModalRegras()" class="btn btn-info">📋 Regras dos Palpites</button>
+                <span id="status">✅ Sistema Online</span>
+            </div>
+        </section>
+        
+        <!-- Análises Avançadas -->
+        <section class="card">
+            <h2>🔍 Analises Estatisticas Avancadas</h2>
+            <div class="analise-buttons">
+                <button onclick="carregarAnaliseAvancada('pares_impares')" class="btn btn-primary">⚖️ Pares vs Impares</button>
+                <button onclick="carregarAnaliseAvancada('posicoes_fixas')" class="btn btn-primary">📍 Posicoes Fixas</button>
+                <button onclick="carregarAnaliseAvancada('sequencias_tubulares')" class="btn btn-primary">🔗 Sequencias Tubulares</button>
+                <button onclick="carregarAnaliseAvancada('mapa_calor')" class="btn btn-primary">🌡️ Mapa de Calor</button>
+                <button onclick="carregarAnaliseAvancada('ausencias_coletivas')" class="btn btn-primary">⏰ Ausencias Coletivas</button>
+            </div>
+            <div id="resultado-analise-avancada"></div>
+        </section>
+        
+        <!-- Gerador de Palpites Avançado -->
+        <section class="card">
+            <h2>🎯 Gerador de Palpites Inteligentes</h2>
+            <div class="gerador-form-avancada">
+                
+                <!-- Configurações Básicas -->
+                <div class="config-basica">
+                    <div class="form-group">
+                        <label>Quantidade de Jogos:</label>
+                        <select id="quantidade">
+                            <option value="5">5 jogos</option>
+                            <option value="10">10 jogos</option>
+                            <option value="15">15 jogos</option>
+                            <option value="20">20 jogos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Seleção de Análises Estatísticas -->
+                <div class="analises-selecao">
+                    <h3>📊 Análises Estatísticas para Seleção de Números</h3>
+                    <p><small>Marque as análises que deseja usar para escolher os números candidatos:</small></p>
+                    
+                    <div class="analises-grid">
+                        
+                        <!-- Mapa de Calor -->
+                        <div class="analise-checkbox">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="analise_mapa_calor" checked>
+                                <span class="checkmark"></span>
+                                <div class="analise-info">
+                                    <strong>🌡️ Mapa de Calor</strong>
+                                    <p>Números quentes (frequentes + lacuna baixa)</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Ausências Coletivas -->
+                        <div class="analise-checkbox">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="analise_ausencias" checked>
+                                <span class="checkmark"></span>
+                                <div class="analise-info">
+                                    <strong>⏰ Ausências Coletivas</strong>
+                                    <p>Números há muito tempo sem aparecer</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Posições Fixas -->
+                        <div class="analise-checkbox">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="analise_posicoes">
+                                <span class="checkmark"></span>
+                                <div class="analise-info">
+                                    <strong>📍 Posições Fixas</strong>
+                                    <p>Números por posição de sorteio</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Dezenas Irmãs -->
+                        <div class="analise-checkbox">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="analise_irmas">
+                                <span class="checkmark"></span>
+                                <div class="analise-info">
+                                    <strong>👥 Dezenas Irmãs</strong>
+                                    <p>Números que saem juntos frequentemente</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Sequências Tubulares -->
+                        <div class="analise-checkbox">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="analise_sequencias_tubulares">
+                                <span class="checkmark"></span>
+                                <div class="analise-info">
+                                    <strong>🔗 Sequências Tubulares</strong>
+                                    <p>Padrões de sequências históricas</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Finais Recorrentes -->
+                        <div class="analise-checkbox">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="analise_finais">
+                                <span class="checkmark"></span>
+                                <div class="analise-info">
+                                    <strong>🔢 Finais Recorrentes</strong>
+                                    <p>Números por terminação mais comum</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Repiques Consecutivos -->
+                        <div class="analise-checkbox">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="analise_repiques">
+                                <span class="checkmark"></span>
+                                <div class="analise-info">
+                                    <strong>🔄 Repiques Consecutivos</strong>
+                                    <p>Números que repetem entre sorteios</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Blocos Cíclicos -->
+                        <div class="analise-checkbox">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="analise_blocos">
+                                <span class="checkmark"></span>
+                                <div class="analise-info">
+                                    <strong>📦 Blocos Cíclicos</strong>
+                                    <p>Baixos (1-10), Médios (11-20), Altos (21-31)</p>
+                                </div>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Regras de Validação dos Palpites -->
+                <div class="regras-validacao">
+                    <h3>📋 Regras de Validação dos Palpites</h3>
+                    <p><small><strong>⚠️ SEMPRE APLICADAS:</strong> Garantem distribuição equilibrada e padrões estatísticos corretos:</small></p>
+                    
+                    <div class="regras-grid">
+                        
+                        <!-- Regra 1: Pares vs Ímpares -->
+                        <div class="regra-obrigatoria">
+                            <div class="regra-icon">✅</div>
+                            <div class="regra-info">
+                                <strong>⚖️ Pares vs Ímpares (3P/4I)</strong>
+                                <p>Seguir o padrão mais comum: 3 Pares e 4 Ímpares</p>
+                            </div>
+                        </div>
+
+                        <!-- Regra 2: Finais Iguais -->
+                        <div class="regra-obrigatoria">
+                            <div class="regra-icon">✅</div>
+                            <div class="regra-info">
+                                <strong>🔢 Finais Iguais (= 2)</strong>
+                                <p>Exatamente 2 pares com a mesma terminação</p>
+                            </div>
+                        </div>
+
+                        <!-- Regra 3: Sequências -->
+                        <div class="regra-obrigatoria">
+                            <div class="regra-icon">✅</div>
+                            <div class="regra-info">
+                                <strong>🔗 Sequências (= 2)</strong>
+                                <p>Exatamente 2 duplas consecutivas (ex: 5-6, 12-13)</p>
+                            </div>
+                        </div>
+
+                        <!-- Regra 4: Repetições -->
+                        <div class="regra-obrigatoria">
+                            <div class="regra-icon">✅</div>
+                            <div class="regra-info">
+                                <strong>🔄 Repetições (= 2)</strong>
+                                <p>Exatamente 2 números repetidos do último sorteio</p>
+                            </div>
+                        </div>
+
+                        <!-- Regra 5: Distribuição por Faixas -->
+                        <div class="regra-obrigatoria destaque">
+                            <div class="regra-icon">🎯</div>
+                            <div class="regra-info">
+                                <strong>📊 Distribuição Baixos/Médios/Altos</strong>
+                                <p>Baixos (1-10): 2-3 números | Médios (11-20): 2-3 números | Altos (21-31): 2-3 números</p>
+                            </div>
+                        </div>
+
+                        <!-- Regra 6: Padrão de Dezenas (ÚNICA OPCIONAL) -->
+                        <div class="regra-checkbox regra-opcional">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="regra_padrao_dezenas" checked>
+                                <span class="checkmark"></span>
+                                <div class="regra-info">
+                                    <strong>🎲 Padrão de Dezenas: 0 0 1 1 2 2 2</strong>
+                                    <p>2 números começando com 0, 2 com 1 e 3 com 2</p>
+                                </div>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Regra Especial: Números Gatilho -->
+                <div class="regra-especial">
+                    <h3>🎯 Regra Especial - Números Gatilho</h3>
+                    <p><small>Use informações do último sorteio como base para os palpites:</small></p>
+                    
+                    <div class="regra-checkbox especial">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="regra_numeros_gatilho">
+                            <span class="checkmark"></span>
+                            <div class="regra-info">
+                                <strong>🎯 Usar Números Gatilho do Último Sorteio</strong>
+                                <p>Extrai números criativamente de: Número do Concurso, Data e Valor Arrecadado</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="acoes-gerador">
+                    <button onclick="gerarPalpitesPersonalizados()" class="btn btn-success btn-large">
+                        🎲 Gerar Palpites Personalizados
+                    </button>
+                    <button onclick="aplicarConfigRecomendada()" class="btn btn-info">
+                        ⭐ Configuração Recomendada
+                    </button>
+                    <button onclick="limparTodasOpcoes()" class="btn btn-secondary">
+                        🗑️ Limpar Todas as Opções
+                    </button>
+                </div>
+                
+            </div>
+            
+            <div id="palpites-gerados-avancados"></div>
+        </section>
+        
+        <!-- Exports -->
+        <section class="card">
+            <h2>📥 Exportar Palpites</h2>
+            <div class="export-buttons">
+                <a href="/export/txt" class="btn btn-export">📄 Exportar TXT</a>
+                <a href="/export/xlsx" class="btn btn-export">📊 Exportar XLSX</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL DE REGRAS COMPLETO -->
+    <div id="modalRegras" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Sistema Completo - 5 Regras Obrigatórias + 1 Opcional</h2>
+                <span class="close" onclick="fecharModalRegras()">&times;</span>
+            </div>
+            <div class="modal-body">
+                
+                <div class="regra-item">
+                    <div class="regra-header">
+                        <h3>⚠️ 5 REGRAS OBRIGATÓRIAS - SEMPRE APLICADAS</h3>
+                        <span class="regra-status">✅ SEMPRE ATIVO</span>
+                    </div>
+                    <div class="regra-content">
+                        <p><strong>Estas regras são aplicadas AUTOMATICAMENTE em todos os palpites:</strong></p>
+                        <ul>
+                            <li><strong>⚖️ Pares vs Ímpares (3P/4I):</strong> 3 Pares e 4 Ímpares</li>
+                            <li><strong>🔢 Finais Iguais (= 2):</strong> Exatamente 2 pares com mesma terminação</li>
+                            <li><strong>🔗 Sequências (= 2):</strong> Exatamente 2 duplas consecutivas</li>
+                            <li><strong>🔄 Repetições (= 2):</strong> Exatamente 2 repetições do último sorteio</li>
+                            <li><strong>📊 Distribuição Faixas:</strong> 2-3 Baixos, 2-3 Médios, 2-3 Altos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="regra-item">
+                    <div class="regra-header">
+                        <h3>🎲 1 REGRA OPCIONAL</h3>
+                        <span class="regra-status opcional">🔧 PODE DESMARCAR</span>
+                    </div>
+                    <div class="regra-content">
+                        <p><strong>🎲 Padrão de Dezenas: 0 0 1 1 2 2 2</strong></p>
+                        <p>Esta é a ÚNICA regra que pode ser desmarcada. Força 2 números começando com 0, 2 com 1 e 3 com 2.</p>
+                    </div>
+                </div>
+
+                <div class="regra-item">
+                    <div class="regra-header">
+                        <h3>🎯 NÚMEROS GATILHO - OPCIONAL</h3>
+                        <span class="regra-status especial">⭐ REVOLUCIONÁRIO</span>
+                    </div>
+                    <div class="regra-content">
+                        <p>Extrai números criativamente dos dados reais do último sorteio da Caixa para usar nos palpites.</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="footer-destaque">
+                    <h4>🎯 SISTEMA CORRIGIDO!</h4>
+                    <p><strong>✅ 5 Regras Obrigatórias</strong> sempre aplicadas (SEM CHECKBOX)</p>
+                    <p><strong>🎲 1 Regra Opcional</strong> que pode ser desmarcada</p>
+                    <p><strong>🎯 Números Gatilho</strong> opcionais</p>
+                </div>
+                <button onclick="fecharModalRegras()" class="btn btn-primary">✅ Entendi Como Funciona</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    
+    <script>
+        // ===== ANÁLISE SUTIL DO ÚLTIMO SORTEIO =====
+        function analisarUltimoSorteioSutil() {
+            try {
+                // Buscar as dezenas do último sorteio na página
+                const numerosElements = document.querySelectorAll('.ultimo-resultado .numero');
+                if (numerosElements.length === 0) return;
+                
+                const dezenas = Array.from(numerosElements).map(el => parseInt(el.textContent));
+                if (dezenas.length !== 7) return;
+                
+                console.log('📊 Analisando último sorteio sutilmente:', dezenas);
+                
+                // Análise 1: Pares vs Ímpares
+                const pares = dezenas.filter(n => n % 2 === 0).length;
+                const impares = dezenas.filter(n => n % 2 === 1).length;
+                
+                // Análise 2: Finais Iguais (2 pares) - CORRIGIDO
+                const finais = dezenas.map(n => n % 10);
+                const finaisCount = {};
+                finais.forEach(f => finaisCount[f] = (finaisCount[f] || 0) + 1);
+                // Contar quantos finais aparecem exatamente 2 vezes (= número de pares)
+                const finaisIguais = Object.values(finaisCount).filter(count => count === 2).length;
+                
+                // Análise 3: Sequências
+                const ordenadas = [...dezenas].sort((a, b) => a - b);
+                let sequencias = 0;
+                for (let i = 0; i < ordenadas.length - 1; i++) {
+                    if (ordenadas[i + 1] === ordenadas[i] + 1) {
+                        sequencias++;
+                    }
+                }
+                
+                // Análise 4: Distribuição por faixas
+                const baixos = dezenas.filter(n => n >= 1 && n <= 10).length;
+                const medios = dezenas.filter(n => n >= 11 && n <= 20).length;
+                const altos = dezenas.filter(n => n >= 21 && n <= 31).length;
+                
+                // ===== LINHA 1: RESUMIDA APENAS CONTAGENS =====
+                
+                // Pares/Ímpares - Linha Resumo
+                const analiseParesResumoEl = document.getElementById('analise-pares-resumo');
+                if (analiseParesResumoEl) {
+                    analiseParesResumoEl.textContent = `P: ${pares} | I: ${impares}`;
+                    analiseParesResumoEl.title = `${pares} Pares e ${impares} Ímpares`;
+                }
+                
+                // Finais Iguais - Linha Resumo
+                const analiseFinaisResumoEl = document.getElementById('analise-finais-resumo');
+                if (analiseFinaisResumoEl) {
+                    analiseFinaisResumoEl.textContent = `Finais: ${finaisIguais}`;
+                    analiseFinaisResumoEl.title = `${finaisIguais} pares de terminações iguais`;
+                }
+                
+                // Sequências - Linha Resumo
+                const analiseSequenciasResumoEl = document.getElementById('analise-sequencias-resumo');
+                if (analiseSequenciasResumoEl) {
+                    analiseSequenciasResumoEl.textContent = `Seq: ${sequencias}`;
+                    analiseSequenciasResumoEl.title = `${sequencias} sequências consecutivas`;
+                }
+                
+                // Distribuição - Linha Resumo
+                const analiseDistribuicaoResumoEl = document.getElementById('analise-distribuicao-resumo');
+                if (analiseDistribuicaoResumoEl) {
+                    analiseDistribuicaoResumoEl.textContent = `B: ${baixos} | M: ${medios} | A: ${altos}`;
+                    analiseDistribuicaoResumoEl.title = `Distribuição: ${baixos} Baixos, ${medios} Médios, ${altos} Altos`;
+                }
+                
+                // Padrão de Dezenas - Linha Resumo (PADRÃO SIMPLES)
+                const analiseDezenasResumoEl = document.getElementById('analise-dezenas-resumo');
+                const padraoDezenasCheckbox = document.getElementById('regra_padrao_dezenas');
+                
+                if (analiseDezenasResumoEl && padraoDezenasCheckbox && padraoDezenasCheckbox.checked) {
+                    const dezenasOrdenadas = [...dezenas].sort((a, b) => a - b);
+                    const primeirosDígitos = dezenasOrdenadas.map(n => {
+                        if (n >= 1 && n <= 9) return '0';     // 01-09 → dígito 0
+                        if (n >= 10 && n <= 19) return '1';   // 10-19 → dígito 1
+                        if (n >= 20 && n <= 29) return '2';   // 20-29 → dígito 2
+                        if (n >= 30 && n <= 31) return '3';   // 30-31 → dígito 3
+                        return '?';
+                    });
+                    
+                    const padraoTexto = primeirosDígitos.join(' ');
+                    analiseDezenasResumoEl.textContent = padraoTexto;
+                    analiseDezenasResumoEl.title = `Padrão dos primeiros dígitos: ${dezenasOrdenadas.map((n, i) => `${n.toString().padStart(2, '0')}(${primeirosDígitos[i]})`).join(', ')}`;
+                    analiseDezenasResumoEl.style.display = 'inline-block';
+                } else if (analiseDezenasResumoEl) {
+                    analiseDezenasResumoEl.style.display = 'none';
+                }
+                
+                // ===== LINHA 2: DETALHADA COM NÚMEROS =====
+                const paresNums = dezenas.filter(n => n % 2 === 0).map(n => n.toString().padStart(2, '0'));
+                const imparesNums = dezenas.filter(n => n % 2 === 1).map(n => n.toString().padStart(2, '0'));
+                const baixosNums = dezenas.filter(n => n >= 1 && n <= 10).map(n => n.toString().padStart(2, '0'));
+                const mediosNums = dezenas.filter(n => n >= 11 && n <= 20).map(n => n.toString().padStart(2, '0'));
+                const altosNums = dezenas.filter(n => n >= 21 && n <= 31).map(n => n.toString().padStart(2, '0'));
+                
+                // Pares/Ímpares - Linha Detalhada
+                const analiseParesDetalheEl = document.getElementById('analise-pares-detalhe');
+                if (analiseParesDetalheEl) {
+                    analiseParesDetalheEl.innerHTML = `<strong>P:</strong> ${paresNums.join(' ')} <strong>I:</strong> ${imparesNums.join(' ')}`;
+                    analiseParesDetalheEl.title = `${pares} Pares: ${paresNums.join(', ')} | ${impares} Ímpares: ${imparesNums.join(', ')}`;
+                }
+                
+                // Finais Iguais - Linha Detalhada
+                const analiseFinaisDetalheEl = document.getElementById('analise-finais-detalhe');
+                if (analiseFinaisDetalheEl) {
+                    const finaisRepetidos = Object.entries(finaisCount).filter(([f, c]) => c === 2);
+                    if (finaisRepetidos.length > 0) {
+                        const finaisDetalhes = finaisRepetidos.map(([final, count]) => {
+                            const numerosComFinal = dezenas.filter(n => n % 10 == final).map(n => n.toString().padStart(2, '0'));
+                            return `${final}: ${numerosComFinal.join(' ')}`;
+                        });
+                        analiseFinaisDetalheEl.innerHTML = `<strong>Finais:</strong> ${finaisDetalhes.join(' | ')}`;
+                        analiseFinaisDetalheEl.title = `${finaisIguais} pares de terminações encontrados`;
+                    } else {
+                        analiseFinaisDetalheEl.textContent = 'Sem pares de finais';
+                        analiseFinaisDetalheEl.title = 'Nenhum par de terminação repetida';
+                    }
+                }
+                
+                // Sequências - Linha Detalhada
+                const analiseSequenciasDetalheEl = document.getElementById('analise-sequencias-detalhe');
+                if (analiseSequenciasDetalheEl) {
+                    const sequenciasEncontradas = [];
+                    for (let i = 0; i < ordenadas.length - 1; i++) {
+                        if (ordenadas[i + 1] === ordenadas[i] + 1) {
+                            sequenciasEncontradas.push(`${ordenadas[i].toString().padStart(2, '0')}-${ordenadas[i + 1].toString().padStart(2, '0')}`);
+                        }
+                    }
+                    if (sequenciasEncontradas.length > 0) {
+                        analiseSequenciasDetalheEl.innerHTML = `<strong>Seq:</strong> ${sequenciasEncontradas.join(' ')}`;
+                        analiseSequenciasDetalheEl.title = `${sequencias} sequências encontradas: ${sequenciasEncontradas.join(', ')}`;
+                    } else {
+                        analiseSequenciasDetalheEl.textContent = 'Sem sequências';
+                        analiseSequenciasDetalheEl.title = 'Nenhuma sequência consecutiva encontrada';
+                    }
+                }
+                
+                // Distribuição - Linha Detalhada
+                const analiseDistribuicaoDetalheEl = document.getElementById('analise-distribuicao-detalhe');
+                if (analiseDistribuicaoDetalheEl) {
+                    const distribuicaoTexto = [];
+                    if (baixosNums.length > 0) distribuicaoTexto.push(`B: ${baixosNums.join(' ')}`);
+                    if (mediosNums.length > 0) distribuicaoTexto.push(`M: ${mediosNums.join(' ')}`);
+                    if (altosNums.length > 0) distribuicaoTexto.push(`A: ${altosNums.join(' ')}`);
+                    
+                    analiseDistribuicaoDetalheEl.innerHTML = distribuicaoTexto.join(' | ');
+                    analiseDistribuicaoDetalheEl.title = `Distribuição detalhada: ${baixos} Baixos, ${medios} Médios, ${altos} Altos`;
+                }
+                
+                // Padrão de Dezenas - Linha Detalhada (CONTAGENS POR DÍGITO)
+                const analiseDezenasDetalheEl = document.getElementById('analise-dezenas-detalhe');
+                
+                if (analiseDezenasDetalheEl && padraoDezenasCheckbox && padraoDezenasCheckbox.checked) {
+                    const count0 = dezenas.filter(n => n >= 1 && n <= 9).length;   // 01-09
+                    const count1 = dezenas.filter(n => n >= 10 && n <= 19).length; // 10-19
+                    const count2 = dezenas.filter(n => n >= 20 && n <= 29).length; // 20-29
+                    const count3 = dezenas.filter(n => n >= 30 && n <= 31).length; // 30-31
+                    
+                    const contagens = [];
+                    if (count0 > 0) contagens.push(`0: ${count0}`);
+                    if (count1 > 0) contagens.push(`1: ${count1}`);
+                    if (count2 > 0) contagens.push(`2: ${count2}`);
+                    if (count3 > 0) contagens.push(`3: ${count3}`);
+                    
+                    analiseDezenasDetalheEl.textContent = contagens.join(' | ');
+                    analiseDezenasDetalheEl.title = `Contagem por primeiro dígito`;
+                    analiseDezenasDetalheEl.style.display = 'inline-block';
+                } else if (analiseDezenasDetalheEl) {
+                    analiseDezenasDetalheEl.style.display = 'none';
+                }
+                
+                console.log('📊 Análise sutil concluída:', {
+                    'pares_impares': `${pares}P/${impares}I`,
+                    'finais_iguais': finaisIguais,
+                    'sequencias': sequencias,
+                    'distribuicao': `${baixos}-${medios}-${altos}`,
+                    'padrao_dezenas': padraoDezenasCheckbox ? `${dezenas.filter(n => n >= 1 && n <= 9).length}-${dezenas.filter(n => n >= 10 && n <= 19).length}-${dezenas.filter(n => n >= 20 && n <= 31).length}` : 'desabilitado'
+                });
+                
+            } catch (error) {
+                console.log('⚠️ Erro na análise sutil:', error);
+            }
+        }
+        
+        // ===== ATUALIZAR ANÁLISE QUANDO CHECKBOX MUDA =====
+        function atualizarAnaliseSutil() {
+            // Re-executar análise quando alguma opção mudar
+            setTimeout(() => {
+                analisarUltimoSorteioSutil();
+            }, 100);
+        }
+        
+        // Executar análise após carregamento
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                analisarUltimoSorteioSutil();
+                
+                // Adicionar listener para atualizar análise quando checkbox mudar
+                const padraoCheckbox = document.getElementById('regra_padrao_dezenas');
+                if (padraoCheckbox) {
+                    padraoCheckbox.addEventListener('change', atualizarAnaliseSutil);
+                }
+            }, 800);
+        });
+    </script>
+</body>
+</html>

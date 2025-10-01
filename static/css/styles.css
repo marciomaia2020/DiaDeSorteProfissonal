@@ -1,0 +1,1383 @@
+/* ===== RESET E CONFIGURAÇÕES BÁSICAS ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* ===== HEADER ===== */
+header {
+    background: linear-gradient(45deg, #1e3c72, #2a5298);
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+}
+
+header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ===== CARDS ===== */
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 3px solid #d4b31a;
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+/* ===== BOTÕES ===== */
+.btn {
+    background: linear-gradient(45deg, #d4b31a, #f1c40f);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(212, 179, 26, 0.4);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #3498db, #5dade2);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #27ae60, #58d68d);
+}
+
+.btn-info {
+    background: linear-gradient(45deg, #17a2b8, #5bc0de);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #6c757d, #95a5a6);
+}
+
+.btn-export {
+    background: linear-gradient(45deg, #e74c3c, #ec7063);
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* ===== ÚLTIMO RESULTADO ===== */
+.ultimo-resultado {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ultimo-resultado .info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ultimo-resultado .info span {
+    background: linear-gradient(45deg, #3498db, #5dade2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.dezenas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.numero {
+    width: 50px;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #d4b31a, #f1c40f);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0.25rem;
+    box-shadow: 0 4px 8px rgba(212, 179, 26, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.numero:hover {
+    transform: scale(1.1);
+}
+
+/* ===== CONTROLES ===== */
+.controles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+#status {
+    background: linear-gradient(45deg, #27ae60, #58d68d);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ===== ANÁLISES AVANÇADAS ===== */
+.analise-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+#resultado-analise-avancada {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    border-left: 4px solid #3498db;
+}
+
+/* ===== GERADOR DE PALPITES ===== */
+.gerador-form-avancada {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.config-basica {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border-left: 4px solid #3498db;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.form-group select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+/* ===== ANÁLISES ESTATÍSTICAS ===== */
+.analises-selecao {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 10px;
+    border-left: 4px solid #27ae60;
+}
+
+.analises-selecao h3 {
+    color: #27ae60;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.analises-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.analise-checkbox {
+    background: white;
+    border: 2px solid #ecf0f1;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.analise-checkbox:hover {
+    border-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    padding: 1.5rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.checkbox-container input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    background: #ecf0f1;
+    border-radius: 4px;
+    margin-right: 1rem;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.checkbox-container input[type="checkbox"]:checked ~ .checkmark {
+    background: #27ae60;
+}
+
+.checkbox-container input[type="checkbox"]:checked ~ .checkmark:after {
+    content: "✓";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+}
+
+.analise-info {
+    flex: 1;
+}
+
+.analise-info strong {
+    color: #2c3e50;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.analise-info p {
+    color: #7f8c8d;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* ===== REGRAS DE VALIDAÇÃO ===== */
+.regras-validacao {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 2px solid #ffc107;
+    margin: 2rem 0;
+}
+
+.regras-validacao h3 {
+    color: #d4630c;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.regras-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.regra-checkbox {
+    background: white;
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.regra-checkbox:hover {
+    border-color: #d4630c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 99, 12, 0.2);
+}
+
+.regra-checkbox.regra-opcional {
+    border-color: #2196f3;
+    background: linear-gradient(135deg, #fff, #e3f2fd);
+}
+
+.regra-checkbox.regra-opcional:hover {
+    border-color: #1976d2;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.regra-info {
+    flex: 1;
+}
+
+.regra-info strong {
+    color: #2c3e50;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.regra-info p {
+    color: #7f8c8d;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* ===== REGRA ESPECIAL - NÚMEROS GATILHO ===== */
+.regra-especial {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 2px solid #2196f3;
+    margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.regra-especial::before {
+    content: '🎯';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    opacity: 0.3;
+}
+
+.regra-especial h3 {
+    color: #1976d2;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.regra-checkbox.especial {
+    background: white;
+    border: 2px solid #2196f3;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+.regra-checkbox.especial:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.regra-checkbox.especial:has(input[type="checkbox"]:checked) {
+    background: linear-gradient(135deg, #fff, #e3f2fd);
+    border-color: #1976d2;
+}
+
+/* ===== AÇÕES DO GERADOR ===== */
+.acoes-gerador {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-top: 4px solid #3498db;
+}
+
+/* ===== EXPORTAÇÕES ===== */
+.export-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ===== PALPITES GERADOS ===== */
+#palpites-gerados-avancados {
+    margin-top: 2rem;
+}
+
+.palpites-resultado {
+    margin-top: 2rem;
+}
+
+.palpites-header {
+    background: linear-gradient(135deg, #3498db, #5dade2);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0;
+}
+
+.palpites-header h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+}
+
+.estatisticas-rapidas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.estatisticas-rapidas .stat {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.palpite-item {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-left: 4px solid #27ae60;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.palpite-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.palpite-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.palpite-header h4 {
+    color: #2c3e50;
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.palpite-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.palpite-forca {
+    background: linear-gradient(45deg, #27ae60, #58d68d);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.palpite-tentativas {
+    background: linear-gradient(45deg, #3498db, #5dade2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.palpite-dezenas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.palpite-dezenas .numero {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+}
+
+/* NÚMEROS COLORIDOS PARA PARES E ÍMPARES */
+.palpite-dezenas .numero.par {
+    background: linear-gradient(45deg, #3498db, #5dade2);
+}
+
+.palpite-dezenas .numero.impar {
+    background: linear-gradient(45deg, #e74c3c, #ec7063);
+}
+
+.palpite-mes {
+    text-align: center;
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #f39c12, #f5b041);
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.palpite-detalhes {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.palpite-detalhes h5 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.detalhes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.detalhe-item {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border-left: 3px solid #3498db;
+    font-size: 0.9rem;
+}
+
+.detalhe-item strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.regras-aplicadas {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(39, 174, 96, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid #27ae60;
+}
+
+.regras-aplicadas .regra-tag {
+    display: inline-block;
+    background: #27ae60;
+    color: white;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 0.25rem 0.25rem 0.25rem 0;
+}
+
+/* ===== MODAL ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 2% auto;
+    padding: 0;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.modal-header {
+    background: linear-gradient(45deg, #3498db, #5dade2);
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.close {
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.close:hover {
+    opacity: 0.7;
+}
+
+.modal-body {
+    padding: 2rem;
+    line-height: 1.6;
+}
+
+.modal-footer {
+    background: #f8f9fa;
+    padding: 1.5rem 2rem;
+    border-radius: 0 0 15px 15px;
+    border-top: 1px solid #ecf0f1;
+    text-align: center;
+}
+
+/* ===== ESTILOS PARA REGRAS NO MODAL ===== */
+.regra-item {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.regra-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.regra-header h3 {
+    color: #2c3e50;
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.regra-status {
+    background: linear-gradient(45deg, #27ae60, #58d68d);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.regra-status.especial {
+    background: linear-gradient(45deg, #e74c3c, #ec7063);
+}
+
+.regra-status.opcional {
+    background: linear-gradient(45deg, #f39c12, #f5b041);
+}
+
+.regra-content {
+    color: #34495e;
+    line-height: 1.6;
+}
+
+/* ===== ANÁLISE SUTIL DO ÚLTIMO SORTEIO ===== */
+.analise-sutil {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(52, 73, 94, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #3498db;
+}
+
+.analise-linha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 0.5rem 0;
+}
+
+.analise-item {
+    font-size: 0.75rem;
+    color: #5a6c7d;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid rgba(52, 73, 94, 0.1);
+    font-weight: 500;
+    text-align: center;
+    min-width: 80px;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    header p {
+        font-size: 1rem;
+    }
+    
+    .card {
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .analises-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .regras-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .analise-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .controles {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .acoes-gerador {
+        flex-direction: column;
+    }
+    
+    .export-buttons {
+        flex-direction: column;
+    }
+    
+    .palpite-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 5% auto;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .regra-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .detalhes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .estatisticas-rapidas {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 1rem;
+    }
+    
+    .numero {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+    
+    .modal-content {
+        width: 98%;
+        margin: 1% auto;
+    }
+    
+    .palpite-dezenas .numero {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.card {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.numero:hover {
+    animation: pulse 0.3s ease-in-out;
+}
+
+/* ===== UTILITÁRIOS ===== */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.mt-1 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 1rem; }
+.p-1 { padding: 1rem; }
+
+/* ===== LOADING ===== */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #3498db;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+    margin: 1rem 0;
+}
+/* 🔄 SINALIZAÇÃO ESPECIAL PARA REPETIÇÕES DO ÚLTIMO SORTEIO */
+.palpite-dezenas .numero.repetida {
+    background: linear-gradient(45deg, #9b59b6, #e74c3c) !important;
+    border: 3px solid #f39c12 !important;
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.6) !important;
+    animation: pulseRepeat 2s infinite;
+    position: relative;
+    transform: scale(1.1);
+}
+
+/* Animação para destacar repetições */
+@keyframes pulseRepeat {
+    0% { box-shadow: 0 0 15px rgba(243, 156, 18, 0.6); }
+    50% { box-shadow: 0 0 25px rgba(243, 156, 18, 0.9); }
+    100% { box-shadow: 0 0 15px rgba(243, 156, 18, 0.6); }
+}
+
+/* Ícone especial para repetições */
+.palpite-dezenas .numero.repetida::after {
+    content: '🔄';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
+    background: #f39c12;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* ===== LEGENDA DAS CORES ===== */
+.legenda-cores {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+    border-left: 4px solid #3498db;
+}
+
+.legenda-cores h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.legenda-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.legenda-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legenda-item .numero.sample {
+    width: 40px;
+    height: 40px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.legenda-texto {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+.ultimo-sorteio-ref {
+    background: rgba(52, 152, 219, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #3498db;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    margin-top: 1rem;
+}
+
+/* ===== DESTAQUE DAS REPETIÇÕES ===== */
+.repeticoes-destaque {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #f39c12;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.repeticoes-destaque strong {
+    color: #d68910;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.repeticoes-destaque .numero.mini {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+    margin: 0 0.25rem;
+    background: linear-gradient(45deg, #9b59b6, #e74c3c);
+    border: 2px solid #f39c12;
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.4);
+}
+
+.repeticoes-count {
+    color: #d68910;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+/* 🎯 SINALIZAÇÃO ESPECIAL PARA NÚMEROS GATILHO */
+.palpite-dezenas .numero.gatilho {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+    border: 3px solid #ffc107 !important;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.7) !important;
+    animation: pulseGatilho 2.5s infinite;
+    position: relative;
+    transform: scale(1.1);
+    font-weight: bold;
+}
+
+/* Animação para destacar números gatilho */
+@keyframes pulseGatilho {
+    0% { box-shadow: 0 0 15px rgba(255, 193, 7, 0.7); }
+    50% { box-shadow: 0 0 25px rgba(255, 193, 7, 1); }
+    100% { box-shadow: 0 0 15px rgba(255, 193, 7, 0.7); }
+}
+
+/* Ícone especial para números gatilho */
+.palpite-dezenas .numero.gatilho::after {
+    content: '🎯';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
+    background: #ffc107;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* 🔄 SINALIZAÇÃO ESPECIAL PARA REPETIÇÕES DO ÚLTIMO SORTEIO */
+.palpite-dezenas .numero.repetida {
+    background: linear-gradient(45deg, #9b59b6, #e74c3c) !important;
+    border: 3px solid #f39c12 !important;
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.6) !important;
+    animation: pulseRepeat 2s infinite;
+    position: relative;
+    transform: scale(1.1);
+}
+
+/* Animação para destacar repetições */
+@keyframes pulseRepeat {
+    0% { box-shadow: 0 0 15px rgba(243, 156, 18, 0.6); }
+    50% { box-shadow: 0 0 25px rgba(243, 156, 18, 0.9); }
+    100% { box-shadow: 0 0 15px rgba(243, 156, 18, 0.6); }
+}
+
+/* Ícone especial para repetições */
+.palpite-dezenas .numero.repetida::after {
+    content: '🔄';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
+    background: #f39c12;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* NÚMEROS COLORIDOS PARA PARES E ÍMPARES */
+.palpite-dezenas .numero.par {
+    background: linear-gradient(45deg, #3498db, #5dade2);
+}
+
+.palpite-dezenas .numero.impar {
+    background: linear-gradient(45deg, #e74c3c, #ec7063);
+}
+
+/* ===== INFORMAÇÕES DOS NÚMEROS GATILHO ===== */
+.gatilho-info {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+    border: 2px solid #28a745;
+}
+
+.gatilho-info.ativo {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border-color: #28a745;
+}
+
+.gatilho-info.desativado {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    border-color: #dc3545;
+    opacity: 0.8;
+}
+
+.gatilho-info h5 {
+    color: #155724;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.gatilho-info.desativado h5 {
+    color: #721c24;
+}
+
+.gatilho-detalhes p {
+    margin: 0.5rem 0;
+    color: #155724;
+    font-weight: 600;
+}
+
+.numeros-gatilho-lista {
+    margin: 0.75rem 0;
+    text-align: center;
+}
+
+.numeros-gatilho-lista .numero {
+    margin: 0 0.25rem;
+}
+
+/* ===== LEGENDA DAS CORES ===== */
+.legenda-cores {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+    border-left: 4px solid #3498db;
+}
+
+.legenda-cores h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.legenda-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.legenda-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legenda-item .numero.sample {
+    width: 40px;
+    height: 40px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.legenda-texto {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+.ultimo-sorteio-ref {
+    background: rgba(52, 152, 219, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #3498db;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    margin-top: 1rem;
+}
+
+/* ===== DESTAQUE DOS NÚMEROS GATILHO ===== */
+.gatilhos-destaque {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.gatilhos-destaque strong {
+    color: #155724;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.gatilhos-destaque .numero.mini {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+    margin: 0 0.25rem;
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: 2px solid #ffc107;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+}
+
+.gatilhos-count {
+    color: #155724;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+/* ===== DESTAQUE DAS REPETIÇÕES ===== */
+.repeticoes-destaque {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #f39c12;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.repeticoes-destaque strong {
+    color: #d68910;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.repeticoes-destaque .numero.mini {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+    margin: 0 0.25rem;
+    background: linear-gradient(45deg, #9b59b6, #e74c3c);
+    border: 2px solid #f39c12;
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.4);
+}
+
+.repeticoes-count {
+    color: #d68910;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+/* ===== BADGE DOS NÚMEROS GATILHO NO CABEÇALHO ===== */
+.gatilho-badge {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 0.5rem;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+}
+
+/* ===== ESTATÍSTICAS GATILHO NO CABEÇALHO ===== */
+.stat.gatilho-ativo {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    font-weight: bold;
+}
+
+/* ===== TAG DE REGRA GATILHO ===== */
+.regra-tag.gatilho {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    border: 2px solid #ffc107;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+    .legenda-items {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .gatilho-info {
+        padding: 1rem;
+    }
+    
+    .numeros-gatilho-lista .numero {
+        margin: 0 0.15rem;
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+}
