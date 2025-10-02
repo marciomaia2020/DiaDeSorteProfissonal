@@ -142,15 +142,49 @@ function capturarAnalisesSelecionadas() {
     return analises;
 }
 
-// ===== FUNÇÃO PARA EXIBIR PALPITES AVANÇADOS COM SINALIZAÇÃO COMPLETA =====
+// ===== FUNÇÃO CORRIGIDA PARA EXIBIR DADOS REAIS + PRÓXIMO SORTEIO =====
 function exibirPalpitesAvancados(data) {
     const resultadoDiv = document.getElementById('palpites-gerados-avancados');
     
-    // Buscar dados para sinalização
+    // 📊 BUSCAR DADOS REAIS DA RESPOSTA DA API
     const ultimoSorteio = data.ultimo_sorteio_real ? data.ultimo_sorteio_real.dezenas : [];
     const numerosGatilho = data.numeros_gatilho_extraidos || [];
     const gatilhoAtivo = data.numeros_gatilho_funcionais || false;
     const mesEscolhido = data.mes_sorte_unico || 'N/A';
+    
+    // 🌐 OBTER DADOS REAIS DO ÚLTIMO SORTEIO DA API DA CAIXA
+    const dadosReais = data.ultimo_sorteio_real || {};
+    const numeroConcursoReal = dadosReais.numero || 'N/A';
+    const dataReal = dadosReais.data || 'N/A';
+    const valorReal = dadosReais.valor_arrecadado || 0;
+    const mesReal = dadosReais.mes_sorte || 'N/A';
+    
+    // 💰 FORMATAR VALOR CORRETAMENTE
+    const valorFormatado = valorReal ? 
+        new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+            minimumFractionDigits: 2
+        }).format(valorReal) : 'N/A';
+    
+    // 🎯 FORMATAR PRÊMIO ESTIMADO DO PRÓXIMO SORTEIO
+    const premioProximoFormatado = dadosReais.proximo_premio_estimado ? 
+        new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+            minimumFractionDigits: 2
+        }).format(dadosReais.proximo_premio_estimado) : 'N/A';
+    
+    console.log('📊 DADOS REAIS DA API:', {
+        concurso: numeroConcursoReal,
+        data: dataReal,
+        valor: valorFormatado,
+        mes: mesReal,
+        proximo_concurso: dadosReais.proximo_numero,
+        proximo_data: dadosReais.proximo_data,
+        proximo_premio: premioProximoFormatado,
+        fonte: data.fonte_dados || 'API da Caixa'
+    });
     
     let html = `
         <div class="palpites-resultado">
@@ -163,63 +197,155 @@ function exibirPalpitesAvancados(data) {
                     <span class="stat mes-ativo">📅 Mês: ${mesEscolhido}</span>
                 </div>
                 
+                <!-- 🎯 DADOS DO PRÓXIMO SORTEIO - DESTAQUE PRINCIPAL -->
+                <div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; box-shadow: 0 4px 12px rgba(0,123,255,0.3);">
+                    <h4 style="color: white !important; margin-bottom: 1rem; font-size: 1.3rem; text-align: center;">🎯 PRÓXIMO SORTEIO</h4>
+                    <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.9rem; opacity: 0.9;">Concurso</div>
+                            <div style="font-size: 1.8rem; font-weight: bold;">${dadosReais.proximo_numero || 'N/A'}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.9rem; opacity: 0.9;">Data</div>
+                            <div style="font-size: 1.2rem; font-weight: bold;">${dadosReais.proximo_data || 'N/A'}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.9rem; opacity: 0.9;">Prêmio Estimado</div>
+                            <div style="font-size: 1.4rem; font-weight: bold; color: #ffd700;">${premioProximoFormatado}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.9rem; opacity: 0.9;">Mês da Sorte (Último)</div>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #17a2b8;">${mesReal}</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                        <small style="color: white !important;">📊 Campos: numeroConcursoProximo, dataProximoConcurso, valorEstimadoProximoConcurso + nomeTimeCoracaoMesSorte</small>
+                    </div>
+                </div>
+                
                 <!-- 🎨 LEGENDA COMPLETA DAS CORES -->
-                <div class="legenda-cores">
-                    <h4>🎨 Legenda das Cores:</h4>
-                    <div class="legenda-items">
-                        <div class="legenda-item">
+                <div class="legenda-cores" style="background: white !important; color: #2c3e50 !important; border: 2px solid #ddd !important; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <h4 style="color: #2c3e50 !important; margin-bottom: 1rem; font-size: 1.2rem;">🎨 Legenda das Cores:</h4>
+                    <div class="legenda-items" style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
+                        <div class="legenda-item" style="display: flex; align-items: center; gap: 0.5rem; background: white !important; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 8px;">
                             <span class="numero par sample">PAR</span>
-                            <span class="legenda-texto">Números Pares</span>
+                            <span class="legenda-texto" style="color: #2c3e50 !important; font-weight: 600;">Números Pares</span>
                         </div>
-                        <div class="legenda-item">
-                            <span class="numero impar sample">ÍMPAR</span>
-                            <span class="legenda-texto">Números Ímpares</span>
+                        <div class="legenda-item" style="display: flex; align-items: center; gap: 0.5rem; background: white !important; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 8px;">
+                            <span class="numero impar sample">ÍMP</span>
+                            <span class="legenda-texto" style="color: #2c3e50 !important; font-weight: 600;">Números Ímpares</span>
                         </div>
-                        <div class="legenda-item">
+                        <div class="legenda-item" style="display: flex; align-items: center; gap: 0.5rem; background: white !important; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 8px;">
                             <span class="numero repetida sample">REP</span>
-                            <span class="legenda-texto">🔄 Repetições do Último Sorteio</span>
+                            <span class="legenda-texto" style="color: #2c3e50 !important; font-weight: 600;">🔄 Repetições do Último Sorteio</span>
                         </div>
-                        <div class="legenda-item">
+                        <div class="legenda-item" style="display: flex; align-items: center; gap: 0.5rem; background: white !important; padding: 0.75rem; border: 1px solid #e9ecef; border-radius: 8px;">
                             <span class="numero gatilho sample">GAT</span>
-                            <span class="legenda-texto">🎯 Números Gatilho</span>
+                            <span class="legenda-texto" style="color: #2c3e50 !important; font-weight: 600;">🎯 Números Gatilho</span>
                         </div>
                     </div>
                     
-<!-- 🌡️ INFORMAÇÕES DO MÊS DA SORTE ESTATÍSTICO -->
-<div class="mes-sorte-info" style="font-weight: bold;">
-    <h5>🌡️ MÊS DA SORTE ESCOLHIDO ESTATISTICAMENTE!</h5>
-    <div class="mes-detalhes">
-        <p><strong>📅 Mês escolhido para TODOS os palpites:</strong> 
-            <span class="mes-escolhido">${mesEscolhido}</span>
-        </p>
-        <p><strong>🧮 Método:</strong> ${data.metodo_mes_sorte || 'Análise Estatística Completa'}</p>
-        <p><strong>📊 Base de dados:</strong> Todos os concursos disponíveis com normalização robusta</p>
-        <p><strong>📄 Exportação:</strong> Formato "01 02 03 04 05 06 07 ${data.mes_sorte_unico ? data.mes_sorte_unico.substring(0,3) : 'Mês'}"</p>
-    </div>
-</div>
+                    <!-- 🌡️ INFORMAÇÕES DO MÊS DA SORTE ESTATÍSTICO -->
+                    <div class="mes-sorte-info" style="font-weight: bold; margin-top: 1.5rem; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; border: 2px solid #17a2b8;">
+                        <h5 style="color: #2c3e50 !important;">🌡️ MÊS DA SORTE ESCOLHIDO ESTATISTICAMENTE!</h5>
+                        <div class="mes-detalhes">
+                            <p style="color: #2c3e50 !important;"><strong>📅 Mês escolhido para TODOS os palpites:</strong> 
+                                <span class="mes-escolhido" style="color: #17a2b8 !important; font-weight: bold;">${mesEscolhido}</span>
+                            </p>
+                            <p style="color: #2c3e50 !important;"><strong>🧮 Método:</strong> ${data.metodo_mes_sorte || 'Análise Estatística Completa'}</p>
+                            <p style="color: #2c3e50 !important;"><strong>📊 Base de dados:</strong> Todos os concursos disponíveis com normalização robusta</p>
+                            <p style="color: #2c3e50 !important;"><strong>📄 Exportação:</strong> Formato "01 02 03 04 05 06 07 ${data.mes_sorte_unico ? data.mes_sorte_unico.substring(0,3) : 'Mês'}"</p>
+                        </div>
+                    </div>
                     
-                    <!-- 🎯 INFORMAÇÕES DOS NÚMEROS GATILHO -->
+                    <!-- 🎯 NÚMEROS GATILHO COM DADOS REAIS -->
                     ${gatilhoAtivo ? `
-                        <div class="gatilho-info ativo">
-                            <h5>🎯 NÚMEROS GATILHO ATIVOS!</h5>
-                            <div class="gatilho-detalhes">
-                                <p><strong>📊 Extraídos do último concurso:</strong></p>
-                                <div class="numeros-gatilho-lista">
-                                    ${numerosGatilho.map(n => `<span class="numero gatilho mini">${n.toString().padStart(2, '0')}</span>`).join(' ')}
+                        <div class="gatilho-info ativo" style="margin-top: 1.5rem;">
+                            <h5 style="color: #2c3e50 !important;">🎯 NÚMEROS GATILHO ATIVOS!</h5>
+                            
+                            <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                                <!-- NÚMEROS GATILHO MENORES -->
+                                <div style="flex: 1; min-width: 300px;">
+                                    <p style="color: #6a1b9a !important; font-weight: 600; margin-bottom: 1rem;"><strong>📊 Extraídos do último concurso:</strong></p>
+                                    <div class="numeros-gatilho-lista" style="margin: 1rem 0;">
+                                        ${numerosGatilho.map(n => `<span class="numero gatilho" style="width: 30px; height: 30px; font-size: 0.8rem; margin: 0.2rem;">${n.toString().padStart(2, '0')}</span>`).join(' ')}
+                                    </div>
+                                    <p style="color: #6a1b9a !important; font-weight: 600;"><strong>🎲 Jogos com gatilhos:</strong> ${data.total_jogos_com_gatilho}/${data.total_gerados} (${((data.total_jogos_com_gatilho/data.total_gerados)*100).toFixed(1)}%)</p>
                                 </div>
-                                <p><strong>🎲 Jogos com gatilhos:</strong> ${data.total_jogos_com_gatilho}/${data.total_gerados} (${((data.total_jogos_com_gatilho/data.total_gerados)*100).toFixed(1)}%)</p>
+                                
+                                <!-- 🎯 APENAS PRÓXIMO SORTEIO COM MÊS DA SORTE DO ÚLTIMO -->
+                                <div style="flex: 1; min-width: 280px; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; border: 2px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <p style="color: #2c3e50 !important; font-weight: 600; margin-bottom: 0.75rem; font-size: 0.95rem;">🎯 Próximo Sorteio:</p>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <span style="color: #2c3e50 !important; font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
+                                            <strong style="color: #2c3e50 !important;">Concurso:</strong> 
+                                            <span style="color: #fff !important; background: #007bff; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: bold;">${dadosReais.proximo_numero || 'N/A'}</span>
+                                        </span>
+                                        <span style="color: #2c3e50 !important; font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
+                                            <strong style="color: #2c3e50 !important;">Data:</strong> 
+                                            <span style="color: #fff !important; background: #28a745; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: bold;">${dadosReais.proximo_data || 'N/A'}</span>
+                                        </span>
+                                        <span style="color: #2c3e50 !important; font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
+                                            <strong style="color: #2c3e50 !important;">Prêmio Estimado:</strong> 
+                                            <span style="color: #212529 !important; background: #ffc107; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: bold;">
+                                                ${dadosReais.proximo_premio_estimado ? 
+                                                    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(dadosReais.proximo_premio_estimado) 
+                                                    : 'N/A'}
+                                            </span>
+                                        </span>
+                                        <span style="color: #2c3e50 !important; font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
+                                            <strong style="color: #2c3e50 !important;">Mês da Sorte (Último):</strong> 
+                                            <span style="color: #fff !important; background: #17a2b8; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: bold;">${mesReal}</span>
+                                        </span>
+                                    </div>
+                                    <div style="margin-top: 0.75rem; padding: 0.5rem; background: #cce5ff; border-radius: 4px; border: 1px solid #99ccff;">
+                                        <small style="color: #004085 !important; font-weight: 600;">🎯 Campos: numeroConcursoProximo, dataProximoConcurso, valorEstimadoProximoConcurso + nomeTimeCoracaoMesSorte</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ` : `
-                        <div class="gatilho-info desativado">
-                            <h5>🎯 Números Gatilho DESATIVADOS</h5>
-                            <p>Para ativar, marque a opção "🎯 Usar Números Gatilho" nas configurações.</p>
+                        <div class="gatilho-info desativado" style="margin-top: 1.5rem; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; border: 2px solid #6c757d;">
+                            <h5 style="color: #2c3e50 !important;">🎯 Números Gatilho DESATIVADOS</h5>
+                            <p style="color: #2c3e50 !important;">Para ativar, marque a opção "🎯 Usar Números Gatilho" nas configurações.</p>
+                            
+                            <!-- 🎯 APENAS PRÓXIMO SORTEIO COM MÊS DA SORTE DO ÚLTIMO -->
+                            <div style="margin-top: 1rem;">
+                                <div style="max-width: 400px; margin: 0 auto; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; border: 2px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <p style="color: #2c3e50 !important; font-weight: 600; margin-bottom: 0.75rem; font-size: 0.95rem;">🎯 Próximo Sorteio:</p>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <span style="color: #2c3e50 !important; font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
+                                            <strong style="color: #2c3e50 !important;">Concurso:</strong> 
+                                            <span style="color: #fff !important; background: #007bff; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: bold;">${dadosReais.proximo_numero || 'N/A'}</span>
+                                        </span>
+                                        <span style="color: #2c3e50 !important; font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
+                                            <strong style="color: #2c3e50 !important;">Data:</strong> 
+                                            <span style="color: #fff !important; background: #28a745; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: bold;">${dadosReais.proximo_data || 'N/A'}</span>
+                                        </span>
+                                        <span style="color: #2c3e50 !important; font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
+                                            <strong style="color: #2c3e50 !important;">Prêmio Estimado:</strong> 
+                                            <span style="color: #212529 !important; background: #ffc107; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: bold;">
+                                                ${dadosReais.proximo_premio_estimado ? 
+                                                    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(dadosReais.proximo_premio_estimado) 
+                                                    : 'N/A'}
+                                            </span>
+                                        </span>
+                                        <span style="color: #2c3e50 !important; font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
+                                            <strong style="color: #2c3e50 !important;">Mês da Sorte (Último):</strong> 
+                                            <span style="color: #fff !important; background: #17a2b8; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: bold;">${mesReal}</span>
+                                        </span>
+                                    </div>
+                                    <div style="margin-top: 0.75rem; padding: 0.5rem; background: #cce5ff; border-radius: 4px; border: 1px solid #99ccff;">
+                                        <small style="color: #004085 !important; font-weight: 600;">🎯 Campos: numeroConcursoProximo, dataProximoConcurso, valorEstimadoProximoConcurso + nomeTimeCoracaoMesSorte</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     `}
                     
                     ${ultimoSorteio.length > 0 ? `
-                        <div class="ultimo-sorteio-ref">
-                            <strong>📊 Último Sorteio (Referência):</strong> 
+                        <div class="ultimo-sorteio-ref" style="background: rgba(255,255,255,0.95) !important; color: #2c3e50 !important; padding: 1rem; border-radius: 8px; border: 2px solid #007bff; margin-top: 1.5rem;">
+                            <strong style="color: #2c3e50 !important;">📊 Último Sorteio REAL (Concurso ${numeroConcursoReal}):</strong> 
                             ${ultimoSorteio.map(n => n.toString().padStart(2, '0')).join(' - ')}
                         </div>
                     ` : ''}
@@ -227,12 +353,11 @@ function exibirPalpitesAvancados(data) {
             </div>
     `;
     
-    // Palpites individuais
+    // [Resto da função permanece igual - palpites individuais...]
     data.palpites.forEach((palpite, index) => {
         const detalhes = palpite.detalhes;
         const gatilhosUsados = detalhes.numeros_gatilho_usados || [];
         
-        // Mapeamento de mês para abreviação
         const mesesAbrev = {
             'Janeiro': 'Jan', 'Fevereiro': 'Fev', 'Março': 'Mar', 
             'Abril': 'Abr', 'Maio': 'Mai', 'Junho': 'Jun',
@@ -253,7 +378,6 @@ function exibirPalpitesAvancados(data) {
                     ` : ''}
                 </div>
                 
-                <!-- EXIBIÇÃO DO JOGO COMPLETO COMO SERÁ EXPORTADO -->
                 <div class="jogo-completo-preview">
                     <strong>📄 Formato de Exportação:</strong>
                     <span class="jogo-exportacao">${palpite.dezenas.map(d => d.toString().padStart(2, '0')).join(' ')} ${mesAbrev}</span>
@@ -268,7 +392,6 @@ function exibirPalpitesAvancados(data) {
                         let classes = ['numero'];
                         let title = '';
                         
-                        // Prioridade: Gatilho > Repetição > Par/Ímpar
                         if (isGatilho) {
                             classes.push('gatilho');
                             title = `🎯 NÚMERO GATILHO (${num})`;
@@ -312,7 +435,6 @@ function exibirPalpitesAvancados(data) {
                         </div>
                     </div>
                     
-                    <!-- 🎯 DESTAQUE ESPECIAL DOS NÚMEROS GATILHO -->
                     ${gatilhosUsados.length > 0 ? `
                         <div class="gatilhos-destaque">
                             <strong>🎯 Números Gatilho Utilizados:</strong>
@@ -323,7 +445,6 @@ function exibirPalpitesAvancados(data) {
                         </div>
                     ` : ''}
                     
-                    <!-- 🔄 DESTAQUE DAS REPETIÇÕES -->
                     ${detalhes.repeticoes_ultimo > 0 ? `
                         <div class="repeticoes-destaque">
                             <strong>🔄 Repetições do Último Sorteio:</strong>
@@ -349,7 +470,6 @@ function exibirPalpitesAvancados(data) {
     html += '</div>';
     resultadoDiv.innerHTML = html;
 }
-
 // ===== OUTRAS FUNÇÕES =====
 
 function mostrarMensagem(mensagem, tipo = 'info') {
@@ -480,8 +600,14 @@ async function carregarAnaliseAvancada(tipo) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🎯 Sistema Dia de Sorte COM MÊS ESTATÍSTICO VISÍVEL!');
-    console.log('✅ 5 Regras OBRIGATÓRIAS sempre aplicadas');
+    console.log('🎯 Sistema Dia de Sorte COM DADOS REAIS DA API!');
+    console.log('🌐 API DA CAIXA: https://servicebus2.caixa.gov.br/portaldeloterias/api/diadesorte');
+    console.log('✅ DADOS SEMPRE REAIS - NUNCA FICTÍCIOS!');
+    console.log('📊 CAMPOS INCLUÍDOS:');
+    console.log('   📊 numero (do último concurso)');
+    console.log('   📅 dataApuracao (do último sorteio)');
+    console.log('   💰 valorArrecadado (do último concurso)');
+    console.log('   📅 nomeTimeCoracaoMesSorte (mês da sorte)');
     console.log('🔄 SINALIZAÇÃO VISUAL das repetições do último sorteio!');
     console.log('🎯 SINALIZAÇÃO VISUAL dos números gatilho!');
     console.log('📅 MÊS ESTATÍSTICO exibido na interface!');

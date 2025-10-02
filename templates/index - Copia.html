@@ -269,37 +269,6 @@ section {
             {% endif %}
         </section>
         
-	<!-- 🎯 PRÓXIMO SORTEIO - SEÇÃO ADICIONADA AQUI -->
-        <section class="card" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none;">
-            <h2 style="color: white !important; text-align: center; margin-bottom: 1.5rem;">🎯 PRÓXIMO SORTEIO</h2>
-            {% if latest_data %}
-            <div class="proximo-sorteio" style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 2rem;">
-                <div style="text-align: center;">
-                    <div style="font-size: 1rem; opacity: 0.9; margin-bottom: 0.5rem;">Concurso</div>
-                    <div style="font-size: 2.5rem; font-weight: bold;">{{ latest_data.numeroConcursoProximo or 'N/A' }}</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 1rem; opacity: 0.9; margin-bottom: 0.5rem;">Data</div>
-                    <div style="font-size: 1.5rem; font-weight: bold;">{{ latest_data.dataProximoConcurso or 'N/A' }}</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 1rem; opacity: 0.9; margin-bottom: 0.5rem;">Prêmio Estimado</div>
-                    <div style="font-size: 1.8rem; font-weight: bold; color: #ffd700;">
-                        {% if latest_data.valorEstimadoProximoConcurso %}
-                            R$ {{ "{:,.2f}".format(latest_data.valorEstimadoProximoConcurso).replace(',', 'X').replace('.', ',').replace('X', '.') }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 1.5rem; padding: 0.75rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
-                <small style="color: white !important; font-weight: 600;">📊 Campos: numeroConcursoProximo, dataProximoConcurso, valorEstimadoProximoConcurso</small>
-            </div>
-            {% endif %}
-        </section>	
-		
-		
         <!-- Carregar Dados -->
         <section class="card">
             <h2>⚙️ Controles do Sistema</h2>

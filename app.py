@@ -24,9 +24,51 @@ API_URL = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/diadesorte'
 # Armazenamento temporário dos últimos palpites gerados
 ultimos_palpites_gerados = []
 
-# Cache para último sorteio
+# Cache para último sorteio - REMOVIDO PARA SEMPRE BUSCAR DADOS REAIS
 ultimo_sorteio_cache = None
 
+def buscar_ultimo_sorteio_real():
+    """🌐 BUSCA DADOS REAIS DO ÚLTIMO SORTEIO DA API DA CAIXA - SEMPRE ATUALIZADO"""
+    try:
+        print("🌐 Buscando último sorteio REAL da API da Caixa...")
+        response = requests.get(API_URL, timeout=15)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # 📊 EXTRAIR DADOS REAIS EXATOS DA API - ÚLTIMO E PRÓXIMO CONCURSO
+            ultimo_sorteio_real = {
+                # DADOS DO ÚLTIMO CONCURSO REALIZADO
+                'numero': data.get('numero', 0),
+                'data': data.get('dataApuracao', ''),
+                'dezenas': [int(x) for x in data.get('listaDezenas', [])],
+                'mes_sorte': data.get('nomeTimeCoracaoMesSorte', ''),
+                'valor_arrecadado': data.get('valorArrecadado', 0),
+                
+                # DADOS DO PRÓXIMO CONCURSO - CAMPOS CORRETOS QUE VOCÊ PEDIU
+                'proximo_numero': data.get('numeroConcursoProximo', 0),  # 1123
+                'proximo_data': data.get('dataProximoConcurso', ''),  # 02/10/2025
+                'proximo_premio_estimado': data.get('valorEstimadoProximoConcurso', 0)  # 400000.0
+            }
+            
+            print(f"✅ Dados REAIS obtidos da API:")
+            print(f"   📊 Último Concurso: {ultimo_sorteio_real['numero']}")
+            print(f"   📅 Data Último: {ultimo_sorteio_real['data']}")
+            print(f"   💰 Valor Arrecadado: R$ {ultimo_sorteio_real['valor_arrecadado']:,.2f}")
+            print(f"   📅 Mês da Sorte: {ultimo_sorteio_real['mes_sorte']}")
+            print(f"   🎲 Dezenas: {ultimo_sorteio_real['dezenas']}")
+            print(f"   ➡️ PRÓXIMO Concurso: {ultimo_sorteio_real['proximo_numero']}")
+            print(f"   ➡️ PRÓXIMO Data: {ultimo_sorteio_real['proximo_data']}")
+            print(f"   ➡️ PRÓXIMO Prêmio: R$ {ultimo_sorteio_real['proximo_premio_estimado']:,.2f}")
+            
+            return ultimo_sorteio_real
+        else:
+            print(f"❌ Erro na API da Caixa: Status {response.status_code}")
+            return None
+            
+    except Exception as e:
+        print(f"❌ Erro ao buscar dados reais da API: {e}")
+        return None
 def normalizar_mes_completo(mes_entrada):
     """
     🎯 NORMALIZA O MÊS PARA O FORMATO PADRÃO COMPLETO
@@ -116,164 +158,164 @@ def normalizar_mes_completo(mes_entrada):
     print(f"⚠️ Mês não reconhecido: '{mes_entrada}' -> Retornando None")
     return None
 
-def buscar_ultimo_sorteio_real():
-    """🎯 BUSCA DADOS REAIS DO ÚLTIMO SORTEIO DA API DA CAIXA"""
-    global ultimo_sorteio_cache
-    
+def analisar_finais_iguais_ultimo_sorteio(dezenas):
+    """
+    🔍 ANÁLISE ESPECÍFICA DE FINAIS IGUAIS PARA O ÚLTIMO SORTEIO
+    ACEITA 2 OU MAIS GRUPOS DE FINAIS IGUAIS (não exatamente 2)
+    """
     try:
-        print("🌐 Buscando último sorteio real da API da Caixa...")
-        response = requests.get(API_URL, timeout=10)
+        finais = [d % 10 for d in dezenas]
+        finais_count = {}
         
-        if response.status_code == 200:
-            data = response.json()
-            
-            ultimo_sorteio_cache = {
-                'numero': data.get('numero', 0),
-                'data': data.get('dataApuracao', ''),
-                'dezenas': [int(x) for x in data.get('listaDezenas', [])],
-                'mes_sorte': data.get('nomeTimeCoracaoMesSorte', ''),
-                'valor_arrecadado': data.get('valorArrecadado', 0)
-            }
-            
-            print(f"✅ Último sorteio REAL carregado:")
-            print(f"   📊 Concurso: {ultimo_sorteio_cache['numero']}")
-            print(f"   📅 Data: {ultimo_sorteio_cache['data']}")
-            print(f"   🎲 Dezenas: {ultimo_sorteio_cache['dezenas']}")
-            print(f"   📅 Mês: {ultimo_sorteio_cache['mes_sorte']}")
-            
-            return ultimo_sorteio_cache
-        else:
-            print(f"❌ Erro na API: Status {response.status_code}")
-            return None
-            
+        for final in finais:
+            finais_count[final] = finais_count.get(final, 0) + 1
+        
+        grupos_encontrados = 0
+        detalhes = []
+        
+        for final, count in finais_count.items():
+            if count >= 2:  # 2 ou mais números com mesmo final
+                grupos_encontrados += 1
+                numeros = [d for d in dezenas if d % 10 == final]
+                detalhes.append({
+                    'final': final,
+                    'quantidade': count,
+                    'numeros': numeros
+                })
+        
+        return {
+            'grupos_encontrados': grupos_encontrados,
+            'tem_finais_iguais': grupos_encontrados >= 2,  # 2 OU MAIS grupos
+            'detalhes': detalhes,
+            'status': 'VÁLIDO' if grupos_encontrados >= 2 else 'INVÁLIDO'
+        }
+        
     except Exception as e:
-        print(f"❌ Erro ao buscar último sorteio: {e}")
-        return None
+        return {
+            'grupos_encontrados': 0,
+            'tem_finais_iguais': False,
+            'detalhes': [],
+            'status': 'ERRO',
+            'erro': str(e)
+        }
 
-def extrair_numeros_gatilho_ultra_mega_criativos():
+def analisar_ultimo_sorteio_detalhado(dezenas):
+    """🔍 ANÁLISE DETALHADA DO ÚLTIMO SORTEIO COM REGRAS ESPECÍFICAS"""
+    try:
+        if not dezenas or len(dezenas) != 7:
+            return "Dados insuficientes"
+        
+        # Análise de finais iguais (2 OU MAIS para última análise)
+        analise_finais = analisar_finais_iguais_ultimo_sorteio(dezenas)
+        
+        # Análise de pares vs ímpares
+        pares = len([d for d in dezenas if d % 2 == 0])
+        impares = len([d for d in dezenas if d % 2 == 1])
+        
+        # Análise de sequências
+        dezenas_ordenadas = sorted(dezenas)
+        sequencias = 0
+        for i in range(len(dezenas_ordenadas) - 1):
+            if dezenas_ordenadas[i + 1] == dezenas_ordenadas[i] + 1:
+                sequencias += 1
+        
+        # Análise por faixas
+        baixos = len([d for d in dezenas if 1 <= d <= 10])
+        medios = len([d for d in dezenas if 11 <= d <= 20])
+        altos = len([d for d in dezenas if 21 <= d <= 31])
+        
+        return {
+            'pares': pares,
+            'impares': impares,
+            'finais_iguais': analise_finais,
+            'sequencias': sequencias,
+            'baixos': baixos,
+            'medios': medios,
+            'altos': altos,
+            'distribuicao': f"{pares}P/{impares}I"
+        }
+        
+    except Exception as e:
+        return f"Erro na análise: {e}"
+
+def extrair_numeros_gatilho_minimalista_focado():
     """
-    🎯 EXTRAI NÚMEROS GATILHO COM CRIATIVIDADE ABSOLUTA!
-    📊 Exemplo: Concurso 1122, 30/09/2025, R$ 150.000,00
-    🧠 TODAS as técnicas imagináveis + 4 operações matemáticas!
+    🎯 EXTRAI NÚMEROS GATILHO DE FORMA MINIMALISTA E CRIATIVA!
+    📊 Sempre busca dados reais da API da Caixa
+    🧠 Foco nos números que REALMENTE aparecem nos campos + 4 operações!
     """
     try:
+        # 🌐 SEMPRE BUSCAR DADOS REAIS DA API
         ultimo_real = buscar_ultimo_sorteio_real()
         if not ultimo_real:
-            print("⚠️ Não foi possível buscar dados do último sorteio")
+            print("⚠️ Não foi possível buscar dados REAIS do último sorteio")
             return []
         
         numero_concurso = ultimo_real['numero']
         data_apuracao = ultimo_real['data']
         valor_arrecadado = ultimo_real['valor_arrecadado']
         
-        print(f"\n🎯 EXTRAÇÃO ULTRA MEGA CRIATIVA DE NÚMEROS GATILHO:")
-        print(f"📊 Concurso: {numero_concurso}")
-        print(f"📅 Data: {data_apuracao}")
-        print(f"💰 Valor: R$ {valor_arrecadado}")
+        print(f"\n🎯 EXTRAÇÃO MINIMALISTA COM DADOS REAIS DA API:")
+        print(f"📊 Concurso REAL: {numero_concurso}")
+        print(f"📅 Data REAL: {data_apuracao}")
+        print(f"💰 Valor REAL: R$ {valor_arrecadado:,.2f}")
         print("="*80)
         
         numeros_candidatos = set()
         explicacoes = []
         
-        # ===== NÚMEROS INTEIROS E INVERSÕES =====
+        # ===== CONCURSO: EXTRAIR APENAS NÚMEROS QUE APARECEM =====
         if numero_concurso > 0:
             numero_str = str(numero_concurso)
             
-            # 1. Números inteiros diretos do concurso
+            # 1. Números diretos que aparecem no concurso (apenas 1-2 dígitos)
             for i in range(len(numero_str)):
-                for j in range(i+1, len(numero_str)+1):
-                    pedaco = numero_str[i:j]
-                    if pedaco and not pedaco.startswith('0'):
-                        num = int(pedaco)
-                        if 1 <= num <= 31:
-                            numeros_candidatos.add(num)
-                            explicacoes.append(f"🔢 {pedaco} extraído de {numero_concurso}")
+                # Dígito único
+                digito = int(numero_str[i])
+                if 1 <= digito <= 31:
+                    numeros_candidatos.add(digito)
+                    explicacoes.append(f"🔢 Dígito {digito} do concurso {numero_concurso}")
+                
+                # Par de dígitos consecutivos
+                if i < len(numero_str) - 1:
+                    par = int(numero_str[i:i+2])
+                    if 1 <= par <= 31:
+                        numeros_candidatos.add(par)
+                        explicacoes.append(f"🔢 Par {par} do concurso {numero_concurso}")
             
-            # 2. Inversões de números (COMO NO SEU EXEMPLO)
-            # 30 → 03, 09 → 90 (mas consideramos 09), etc.
-            for i in range(len(numero_str)):
-                for j in range(i+1, len(numero_str)+1):
-                    pedaco = numero_str[i:j]
-                    if pedaco and len(pedaco) >= 1:
-                        invertido = pedaco[::-1]
-                        if invertido and not invertido.startswith('0'):
-                            num_inv = int(invertido)
-                            if 1 <= num_inv <= 31:
-                                numeros_candidatos.add(num_inv)
-                                explicacoes.append(f"🔄 {pedaco} invertido = {num_inv}")
-            
-            # 3. QUATRO OPERAÇÕES MATEMÁTICAS no número do concurso
-            # Exemplo: 1122 → várias operações
+            # 2. Operações BÁSICAS entre dígitos adjacentes
             digitos = [int(d) for d in numero_str]
-            
-            # SOMA de combinações
-            for i in range(len(digitos)):
-                for j in range(i+1, len(digitos)):
-                    soma = digitos[i] + digitos[j]
-                    if 1 <= soma <= 31:
-                        numeros_candidatos.add(soma)
-                        explicacoes.append(f"➕ {digitos[i]} + {digitos[j]} = {soma}")
-            
-            # SUBTRAÇÃO de combinações
-            for i in range(len(digitos)):
-                for j in range(len(digitos)):
-                    if i != j and digitos[i] > digitos[j]:
-                        sub = digitos[i] - digitos[j]
-                        if 1 <= sub <= 31:
-                            numeros_candidatos.add(sub)
-                            explicacoes.append(f"➖ {digitos[i]} - {digitos[j]} = {sub}")
-            
-            # MULTIPLICAÇÃO de combinações
-            for i in range(len(digitos)):
-                for j in range(i+1, len(digitos)):
-                    if digitos[i] > 0 and digitos[j] > 0:
-                        mult = digitos[i] * digitos[j]
-                        if 1 <= mult <= 31:
-                            numeros_candidatos.add(mult)
-                            explicacoes.append(f"✖️ {digitos[i]} × {digitos[j]} = {mult}")
-            
-            # DIVISÃO de combinações
-            for i in range(len(digitos)):
-                for j in range(len(digitos)):
-                    if i != j and digitos[j] > 0 and digitos[i] % digitos[j] == 0:
-                        div = digitos[i] // digitos[j]
-                        if 1 <= div <= 31:
-                            numeros_candidatos.add(div)
-                            explicacoes.append(f"➗ {digitos[i]} ÷ {digitos[j]} = {div}")
-            
-            # OPERAÇÕES COM PARES DE DÍGITOS
-            # Exemplo: 1122 → 11+22, 11-22, etc.
-            if len(numero_str) >= 4:
-                primeira_metade = int(numero_str[:2])
-                segunda_metade = int(numero_str[2:4])
+            for i in range(len(digitos) - 1):
+                d1, d2 = digitos[i], digitos[i + 1]
                 
-                # Soma dos pares
-                soma_pares = primeira_metade + segunda_metade
-                if 1 <= soma_pares <= 31:
-                    numeros_candidatos.add(soma_pares)
-                    explicacoes.append(f"➕ {primeira_metade} + {segunda_metade} = {soma_pares}")
+                # Soma
+                soma = d1 + d2
+                if 1 <= soma <= 31:
+                    numeros_candidatos.add(soma)
+                    explicacoes.append(f"➕ {d1} + {d2} = {soma} (concurso)")
                 
-                # Subtração dos pares
-                if primeira_metade > segunda_metade:
-                    sub_pares = primeira_metade - segunda_metade
-                    if 1 <= sub_pares <= 31:
-                        numeros_candidatos.add(sub_pares)
-                        explicacoes.append(f"➖ {primeira_metade} - {segunda_metade} = {sub_pares}")
+                # Subtração
+                if d1 > d2:
+                    sub = d1 - d2
+                    if 1 <= sub <= 31:
+                        numeros_candidatos.add(sub)
+                        explicacoes.append(f"➖ {d1} - {d2} = {sub} (concurso)")
                 
-                # Multiplicação (se resultado válido)
-                mult_pares = primeira_metade * segunda_metade
-                if 1 <= mult_pares <= 31:
-                    numeros_candidatos.add(mult_pares)
-                    explicacoes.append(f"✖️ {primeira_metade} × {segunda_metade} = {mult_pares}")
+                # Multiplicação
+                if d1 > 0 and d2 > 0:
+                    mult = d1 * d2
+                    if 1 <= mult <= 31:
+                        numeros_candidatos.add(mult)
+                        explicacoes.append(f"✖️ {d1} × {d2} = {mult} (concurso)")
                 
                 # Divisão
-                if segunda_metade > 0 and primeira_metade % segunda_metade == 0:
-                    div_pares = primeira_metade // segunda_metade
-                    if 1 <= div_pares <= 31:
-                        numeros_candidatos.add(div_pares)
-                        explicacoes.append(f"➗ {primeira_metade} ÷ {segunda_metade} = {div_pares}")
+                if d2 > 0 and d1 % d2 == 0:
+                    div = d1 // d2
+                    if 1 <= div <= 31:
+                        numeros_candidatos.add(div)
+                        explicacoes.append(f"➗ {d1} ÷ {d2} = {div} (concurso)")
         
-        # ===== DATA COM MÁXIMA CRIATIVIDADE =====
+        # ===== DATA: APENAS DIA, MÊS E ANO ESPECÍFICOS =====
         if data_apuracao:
             data_match = re.search(r'(\d{1,2})/(\d{1,2})/(\d{4})', data_apuracao)
             
@@ -281,110 +323,73 @@ def extrair_numeros_gatilho_ultra_mega_criativos():
                 dia, mes, ano = data_match.groups()
                 dia_int, mes_int, ano_int = int(dia), int(mes), int(ano)
                 
-                # Números diretos
+                # Dia direto
                 if 1 <= dia_int <= 31:
                     numeros_candidatos.add(dia_int)
                     explicacoes.append(f"📅 Dia {dia_int}")
                 
+                # Mês direto
                 if 1 <= mes_int <= 31:
                     numeros_candidatos.add(mes_int)
                     explicacoes.append(f"📅 Mês {mes_int}")
                 
-                # Ano em pedaços
-                ano_str = str(ano_int)
-                if len(ano_str) == 4:
-                    # 2025 → 20, 25
-                    for i in range(len(ano_str)):
-                        for j in range(i+1, len(ano_str)+1):
-                            pedaco_ano = ano_str[i:j]
-                            if pedaco_ano and not pedaco_ano.startswith('0'):
-                                num_ano = int(pedaco_ano)
-                                if 1 <= num_ano <= 31:
-                                    numeros_candidatos.add(num_ano)
-                                    explicacoes.append(f"📅 {pedaco_ano} do ano {ano_int}")
+                # Apenas os 2 últimos dígitos do ano
+                ano_final = ano_int % 100
+                if 1 <= ano_final <= 31:
+                    numeros_candidatos.add(ano_final)
+                    explicacoes.append(f"📅 Ano final {ano_final}")
                 
-                # INVERSÕES DA DATA (COMO NO SEU EXEMPLO)
-                # 30 → 03, 09 → 90, 20 → 02, 25 → 52, 15 → 51
-                numeros_data = [dia_int, mes_int]
-                for num in numeros_data:
-                    num_str = str(num)
-                    invertido = int(num_str[::-1])
-                    if 1 <= invertido <= 31:
-                        numeros_candidatos.add(invertido)
-                        explicacoes.append(f"🔄 {num} invertido = {invertido}")
+                # Operações básicas entre dia e mês
+                # Soma
+                soma_data = dia_int + mes_int
+                if 1 <= soma_data <= 31:
+                    numeros_candidatos.add(soma_data)
+                    explicacoes.append(f"➕ {dia_int} + {mes_int} = {soma_data} (data)")
                 
-                # 4 OPERAÇÕES com elementos da data
-                elementos_data = [dia_int, mes_int, ano_int % 100, int(str(ano_int)[:2])]
+                # Subtração
+                if dia_int > mes_int:
+                    sub_data = dia_int - mes_int
+                    if 1 <= sub_data <= 31:
+                        numeros_candidatos.add(sub_data)
+                        explicacoes.append(f"➖ {dia_int} - {mes_int} = {sub_data} (data)")
+                elif mes_int > dia_int:
+                    sub_data = mes_int - dia_int
+                    if 1 <= sub_data <= 31:
+                        numeros_candidatos.add(sub_data)
+                        explicacoes.append(f"➖ {mes_int} - {dia_int} = {sub_data} (data)")
                 
-                for i, elem1 in enumerate(elementos_data):
-                    for j, elem2 in enumerate(elementos_data):
-                        if i != j:
-                            # Soma
-                            soma = elem1 + elem2
-                            if 1 <= soma <= 31:
-                                numeros_candidatos.add(soma)
-                                explicacoes.append(f"➕ {elem1} + {elem2} = {soma} (data)")
-                            
-                            # Subtração
-                            if elem1 > elem2:
-                                sub = elem1 - elem2
-                                if 1 <= sub <= 31:
-                                    numeros_candidatos.add(sub)
-                                    explicacoes.append(f"➖ {elem1} - {elem2} = {sub} (data)")
-                            
-                            # Multiplicação (limitada)
-                            if elem1 <= 5 and elem2 <= 6:
-                                mult = elem1 * elem2
-                                if 1 <= mult <= 31:
-                                    numeros_candidatos.add(mult)
-                                    explicacoes.append(f"✖️ {elem1} × {elem2} = {mult} (data)")
-                            
-                            # Divisão
-                            if elem2 > 0 and elem1 % elem2 == 0:
-                                div = elem1 // elem2
-                                if 1 <= div <= 31:
-                                    numeros_candidatos.add(div)
-                                    explicacoes.append(f"➗ {elem1} ÷ {elem2} = {div} (data)")
+                # Multiplicação (apenas se resultado válido)
+                if dia_int <= 5 and mes_int <= 6:
+                    mult_data = dia_int * mes_int
+                    if 1 <= mult_data <= 31:
+                        numeros_candidatos.add(mult_data)
+                        explicacoes.append(f"✖️ {dia_int} × {mes_int} = {mult_data} (data)")
         
-        # ===== VALOR ARRECADADO COM MÁXIMA CRIATIVIDADE =====
+        # ===== VALOR: EXTRAIR APENAS OS NÚMEROS QUE APARECEM =====
         if valor_arrecadado and valor_arrecadado > 0:
             valor_str = str(int(valor_arrecadado))
             
-            # Extrair todos os pedaços possíveis
+            # 1. Apenas números de 1-2 dígitos que aparecem no valor
             for i in range(len(valor_str)):
-                for j in range(i+1, len(valor_str)+1):
-                    pedaco = valor_str[i:j]
-                    if pedaco and not pedaco.startswith('0'):
-                        num = int(pedaco)
-                        if 1 <= num <= 31:
-                            numeros_candidatos.add(num)
-                            explicacoes.append(f"💰 {pedaco} do valor {valor_str}")
+                # Dígito único
+                digito = int(valor_str[i])
+                if 1 <= digito <= 31:
+                    numeros_candidatos.add(digito)
+                    explicacoes.append(f"💰 Dígito {digito} do valor")
+                
+                # Par de dígitos consecutivos
+                if i < len(valor_str) - 1:
+                    par = int(valor_str[i:i+2])
+                    if 1 <= par <= 31:
+                        numeros_candidatos.add(par)
+                        explicacoes.append(f"💰 Par {par} do valor")
             
-            # Exclusões criativas (COMO NO SEU EXEMPLO)
-            # 150 → excluir 5 = 10, excluir 1 = 50 (inválido), etc.
-            for digito_excluir in '0123456789':
-                valor_sem_digito = valor_str.replace(digito_excluir, '')
-                if valor_sem_digito:
-                    # Tentar diferentes pedaços do resultado
-                    for i in range(len(valor_sem_digito)):
-                        for j in range(i+1, len(valor_sem_digito)+1):
-                            pedaco_sem = valor_sem_digito[i:j]
-                            if pedaco_sem and not pedaco_sem.startswith('0'):
-                                try:
-                                    num_sem = int(pedaco_sem)
-                                    if 1 <= num_sem <= 31:
-                                        numeros_candidatos.add(num_sem)
-                                        explicacoes.append(f"💰 {valor_str} excluindo '{digito_excluir}' → {pedaco_sem}")
-                                except:
-                                    continue
+            # 2. Operações básicas entre primeiros dígitos do valor
+            digitos_valor = [int(d) for d in valor_str[:3]]  # Apenas primeiros 3 dígitos
             
-            # 4 OPERAÇÕES com dígitos do valor
-            digitos_valor = [int(d) for d in valor_str]
-            
-            # Operações entre todos os dígitos
-            for i in range(len(digitos_valor)):
-                for j in range(i+1, len(digitos_valor)):
-                    d1, d2 = digitos_valor[i], digitos_valor[j]
+            if len(digitos_valor) >= 2:
+                for i in range(len(digitos_valor) - 1):
+                    d1, d2 = digitos_valor[i], digitos_valor[i + 1]
                     
                     # Soma
                     soma = d1 + d2
@@ -400,109 +405,32 @@ def extrair_numeros_gatilho_ultra_mega_criativos():
                             explicacoes.append(f"➖ {d1} - {d2} = {sub} (valor)")
                     
                     # Multiplicação
-                    if d1 > 0 and d2 > 0:
+                    if d1 > 0 and d2 > 0 and d1 <= 5 and d2 <= 6:
                         mult = d1 * d2
                         if 1 <= mult <= 31:
                             numeros_candidatos.add(mult)
                             explicacoes.append(f"✖️ {d1} × {d2} = {mult} (valor)")
-                    
-                    # Divisão
-                    if d2 > 0 and d1 % d2 == 0:
-                        div = d1 // d2
-                        if 1 <= div <= 31:
-                            numeros_candidatos.add(div)
-                            explicacoes.append(f"➗ {d1} ÷ {d2} = {div} (valor)")
-        
-        # ===== COMBINAÇÕES CRIATIVAS ENTRE DIFERENTES FONTES =====
-        # Combinar elementos do concurso, data e valor
-        if numero_concurso and data_apuracao:
-            data_match = re.search(r'(\d{1,2})/(\d{1,2})/(\d{4})', data_apuracao)
-            if data_match:
-                dia, mes, ano = data_match.groups()
-                dia_int, mes_int, ano_int = int(dia), int(mes), int(ano)
-                
-                # Elementos disponíveis para combinação
-                elementos_concurso = [int(d) for d in str(numero_concurso)]
-                elementos_data = [dia_int, mes_int, ano_int % 100]
-                
-                # Operações entre diferentes fontes
-                for elem_c in elementos_concurso:
-                    for elem_d in elementos_data:
-                        # Soma
-                        soma_mix = elem_c + elem_d
-                        if 1 <= soma_mix <= 31:
-                            numeros_candidatos.add(soma_mix)
-                            explicacoes.append(f"🔀 {elem_c}(concurso) + {elem_d}(data) = {soma_mix}")
-                        
-                        # Subtração
-                        if elem_c > elem_d:
-                            sub_mix = elem_c - elem_d
-                            if 1 <= sub_mix <= 31:
-                                numeros_candidatos.add(sub_mix)
-                                explicacoes.append(f"🔀 {elem_c}(concurso) - {elem_d}(data) = {sub_mix}")
-                        
-                        # Multiplicação (limitada)
-                        if elem_c <= 5 and elem_d <= 6:
-                            mult_mix = elem_c * elem_d
-                            if 1 <= mult_mix <= 31:
-                                numeros_candidatos.add(mult_mix)
-                                explicacoes.append(f"🔀 {elem_c}(concurso) × {elem_d}(data) = {mult_mix}")
-        
-        # ===== OPERAÇÕES ESPECIAIS BASEADAS NO SEU EXEMPLO =====
-        # Exemplo específico: 1122 → 21 (você mencionou)
-        if numero_concurso > 0:
-            numero_str = str(numero_concurso)
-            
-            # Tentar extrair 21 de 1122 de várias formas
-            # Pegando dígitos intercalados, etc.
-            if len(numero_str) >= 4:
-                # Intercalar dígitos: 1122 → 12, 12, depois 1+2=3, mas 21 seria 2+1
-                for i in range(len(numero_str)):
-                    for j in range(i+1, len(numero_str)):
-                        combinacao = numero_str[i] + numero_str[j]
-                        if combinacao and not combinacao.startswith('0'):
-                            num_comb = int(combinacao)
-                            if 1 <= num_comb <= 31:
-                                numeros_candidatos.add(num_comb)
-                                explicacoes.append(f"🎯 Combinação {numero_str[i]}{numero_str[j]} = {num_comb}")
         
         numeros_finais = sorted(list(numeros_candidatos))
         
-        print(f"\n🎯 TÉCNICAS ULTRA MEGA CRIATIVAS APLICADAS:")
+        print(f"\n🎯 NÚMEROS GATILHO EXTRAÍDOS COM DADOS REAIS:")
         print(f"📊 Total de {len(explicacoes)} operações realizadas!")
-        
-        # Mostrar por categoria
-        print(f"\n🔢 OPERAÇÕES NUMÉRICAS:")
-        for exp in [e for e in explicacoes if any(op in e for op in ['➕', '➖', '✖️', '➗'])][:10]:
-            print(f"   {exp}")
-        
-        print(f"\n🔄 INVERSÕES E TRANSFORMAÇÕES:")
-        for exp in [e for e in explicacoes if '🔄' in e][:10]:
-            print(f"   {exp}")
-        
-        print(f"\n💰 EXTRAÇÕES CRIATIVAS:")
-        for exp in [e for e in explicacoes if '💰' in e or '📅' in e][:10]:
-            print(f"   {exp}")
-        
-        if len(explicacoes) > 30:
-            print(f"\n   ... e mais {len(explicacoes) - 30} técnicas aplicadas!")
-        
-        print(f"\n🎯 NÚMEROS GATILHO ULTRA MEGA CRIATIVOS: {numeros_finais}")
+        print(f"🎯 NÚMEROS GATILHO FINAIS: {numeros_finais}")
         print(f"📊 Total de {len(numeros_finais)} números únicos extraídos!")
         print("="*80 + "\n")
         
         return numeros_finais
         
     except Exception as e:
-        print(f"❌ Erro ao extrair números gatilho mega criativos: {e}")
+        print(f"❌ Erro ao extrair números gatilho: {e}")
         import traceback
         traceback.print_exc()
         return []
 
 # Função de compatibilidade
 def extrair_numeros_gatilho_criativos():
-    """🎯 Chama a versão ultra mega criativa"""
-    return extrair_numeros_gatilho_ultra_mega_criativos()
+    """🎯 Chama a versão minimalista focada"""
+    return extrair_numeros_gatilho_minimalista_focado()
 
 def calcular_mes_sorte_inteligente():
     """
@@ -1150,7 +1078,7 @@ analyzer = DiaDeSorteAnalyzerAdvanced()
 # Funções de exportação CORRIGIDAS
 def gerar_txt_palpites(palpites):
     """
-    📄 GERA ARQUIVO TXT COM DEZENAS + MÊS ABREVIADO
+    📄 GERA ARQUIVO TXT LIMPO - APENAS NÚMEROS + MÊS ABREVIADO
     FORMATO: 01 02 03 04 05 06 07 Jan
     """
     try:
@@ -1162,13 +1090,7 @@ def gerar_txt_palpites(palpites):
             'Outubro': 'Out', 'Novembro': 'Nov', 'Dezembro': 'Dez'
         }
         
-        # Cabeçalho informativo
-        conteudo.append("# PALPITES DIA DE SORTE - SISTEMA INTELIGENTE")
-        conteudo.append("# Formato: Dezena1 Dezena2 Dezena3 Dezena4 Dezena5 Dezena6 Dezena7 MêsAbrev")
-        conteudo.append("# 5 Regras Obrigatórias + Números Gatilho + Mês Estatístico")
-        conteudo.append("")
-        
-        for i, palpite in enumerate(palpites, 1):
+        for palpite in palpites:
             # Formatar dezenas: 01 02 03 04 05 06 07
             dezenas_formatadas = " ".join([f"{d:02d}" for d in palpite['dezenas']])
             
@@ -1177,13 +1099,7 @@ def gerar_txt_palpites(palpites):
             
             # Linha final: 01 02 03 04 05 06 07 Jan
             linha_completa = f"{dezenas_formatadas} {mes_abrev}"
-            
-            # Adicionar comentário com detalhes (opcional)
-            linha_comentario = f"# Jogo {i:02d}: Força {palpite['forca']}, {palpite['detalhes']['distribuicao']}, {palpite['detalhes']['finais_iguais']} finais iguais"
-            
-            conteudo.append(linha_comentario)
             conteudo.append(linha_completa)
-            conteudo.append("")  # Linha em branco
         
         return "\n".join(conteudo)
         
@@ -1402,9 +1318,19 @@ def index():
         print("Carregando dados históricos...")
         analyzer.fetch_multiple_concursos(50)
     
+    # Análise do último sorteio para exibição
+    analise_ultimo = None
+    if latest_data and latest_data.get('listaDezenas'):
+        try:
+            dezenas_ultimo = [int(x) for x in latest_data['listaDezenas']]
+            analise_ultimo = analisar_ultimo_sorteio_detalhado(dezenas_ultimo)
+        except:
+            analise_ultimo = None
+    
     return render_template('index.html', 
                          latest_data=latest_data, 
-                         total_historico=len(historico))
+                         total_historico=len(historico),
+                         analise_ultimo=analise_ultimo)
 
 @app.route('/api/carregar-historico')
 def api_carregar_historico():
@@ -1461,12 +1387,35 @@ def api_analise_avancada():
             'error': f'Erro ao carregar análise: {str(e)}'
         })
 
+# ===== NOVA ROTA PARA BUSCAR DADOS REAIS =====
+@app.route('/api/dados-ultimo-sorteio', methods=['GET'])
+def api_dados_ultimo_sorteio():
+    """🌐 API para buscar dados REAIS do último sorteio"""
+    try:
+        dados_reais = buscar_ultimo_sorteio_real()
+        
+        if dados_reais:
+            return jsonify({
+                'success': True,
+                'dados': dados_reais,
+                'fonte': 'API da Caixa - Dados Reais'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Erro ao buscar dados reais da API da Caixa'
+            })
+            
+    except Exception as e:
+        print(f"❌ Erro na API dados ultimo sorteio: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Erro interno: {str(e)}'
+        })
+
 @app.route('/api/gerar-palpites-personalizados', methods=['POST'])
 def api_gerar_palpites_personalizados():
-    """
-    🎯 API PARA GERAR PALPITES COM AS 5 REGRAS CORRETAS
-    🎯 INCLUINDO NÚMEROS GATILHO E MÊS DA SORTE INTELIGENTE (TODOS OS CONCURSOS + NORMALIZAÇÃO)
-    """
+    """🎯 API PARA GERAR PALPITES COM DADOS REAIS SEMPRE"""
     global ultimos_palpites_gerados
     
     try:
@@ -1475,17 +1424,34 @@ def api_gerar_palpites_personalizados():
         analises = dados.get('analises', {})
         regras = dados.get('regras', {})
         
-        print(f"🎲 Gerando {quantidade} palpites com 5 REGRAS CORRETAS...")
+        print(f"🎲 Gerando {quantidade} palpites com dados REAIS...")
         
+        # 🌐 BUSCAR DADOS REAIS DA API SEMPRE
+        print("🌐 Buscando dados REAIS da API da Caixa...")
         ultimo_real = buscar_ultimo_sorteio_real()
-        ultimo_sorteio_dezenas = ultimo_real['dezenas'] if ultimo_real else None
+        
+        if not ultimo_real:
+            print("❌ ERRO CRÍTICO: Não foi possível buscar dados reais da API")
+            return jsonify({
+                'success': False,
+                'message': 'Erro ao buscar dados reais da API da Caixa. Verifique a conexão e tente novamente.'
+            })
+        
+        # 📊 VALIDAR DADOS REAIS
+        print(f"✅ Dados REAIS validados:")
+        print(f"   📊 Concurso REAL: {ultimo_real['numero']}")
+        print(f"   📅 Data REAL: {ultimo_real['data']}")
+        print(f"   💰 Valor REAL: R$ {ultimo_real['valor_arrecadado']:,.2f}")
+        print(f"   📅 Mês REAL: {ultimo_real['mes_sorte']}")
+        
+        ultimo_sorteio_dezenas = ultimo_real['dezenas']
         
         numeros_gatilho = []
         usar_gatilho = regras.get('numeros_gatilho', False)
         
         if usar_gatilho:
-            numeros_gatilho = extrair_numeros_gatilho_ultra_mega_criativos()
-            print(f"🎯 NÚMEROS GATILHO ULTRA MEGA CRIATIVOS ATIVADOS: {numeros_gatilho}")
+            numeros_gatilho = extrair_numeros_gatilho_minimalista_focado()
+            print(f"🎯 NÚMEROS GATILHO COM DADOS REAIS: {numeros_gatilho}")
         else:
             print("🎯 Números gatilho DESATIVADOS")
         
@@ -1496,9 +1462,6 @@ def api_gerar_palpites_personalizados():
         print("   4. 🔄 Repetições (EXATAMENTE 2 do último concurso) - SEMPRE")
         print("   5. 📊 Distribuição Faixas (2-3 cada) - SEMPRE")
         print("🌡️ MÊS DA SORTE: ANÁLISE COMPLETA + NORMALIZAÇÃO ROBUSTA")
-        
-        if ultimo_real:
-            print(f"🎯 Último sorteio REAL para validação: {ultimo_sorteio_dezenas}")
         
         # 🌡️ CALCULAR O MÊS DA SORTE UMA ÚNICA VEZ PARA TODOS OS PALPITES
         print(f"\n🌡️ CALCULANDO MÊS DA SORTE INTELIGENTE (TODOS OS CONCURSOS)...")
@@ -1596,17 +1559,19 @@ def api_gerar_palpites_personalizados():
         print(f"🎯 Último sorteio usado para validação: {ultimo_real['numero'] if ultimo_real else 'N/A'}")
         print(f"🎯 Números gatilho disponíveis: {numeros_gatilho}")
         
+        # 🎯 INCLUIR DADOS REAIS NA RESPOSTA
         return jsonify({
             'success': True,
             'palpites': palpites,
             'total_gerados': len(palpites),
             'total_validados': total_validados,
-            'ultimo_sorteio_real': ultimo_real,
+            'ultimo_sorteio_real': ultimo_real,  # 📊 DADOS REAIS DA API
             'numeros_gatilho_funcionais': usar_gatilho,
             'numeros_gatilho_extraidos': numeros_gatilho,
             'total_jogos_com_gatilho': total_com_gatilho,
             'mes_sorte_unico': mes_sorte_inteligente,
             'metodo_mes_sorte': 'ANALISE_COMPLETA_NORMALIZADA',
+            'fonte_dados': 'API da Caixa - 100% Real',
             'regras_corretas_aplicadas': [
                 'pares_impares (3P/4I)',
                 'finais_iguais (EXATAMENTE 2 pares)',
@@ -1654,7 +1619,7 @@ def debug_numeros_gatilho():
     try:
         print("\n🎯 TESTANDO EXTRAÇÃO ULTRA MEGA CRIATIVA DE NÚMEROS GATILHO:")
         
-        numeros = extrair_numeros_gatilho_ultra_mega_criativos()
+        numeros = extrair_numeros_gatilho_minimalista_focado()
         
         return jsonify({
             'success': True,
@@ -1662,6 +1627,50 @@ def debug_numeros_gatilho():
             'total': len(numeros),
             'timestamp': datetime.now().isoformat(),
             'metodo': 'ULTRA_MEGA_CRIATIVO'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
+@app.route('/debug/meses')
+def debug_meses():
+    """🔍 DEBUG: Análise completa da normalização de meses"""
+    try:
+        historico = analyzer.get_historico_completo(200)
+        
+        if not historico:
+            return jsonify({
+                'success': False,
+                'message': 'Nenhum histórico disponível'
+            })
+        
+        # Analisar todos os meses únicos
+        meses_originais = set()
+        meses_normalizados = {}
+        meses_nao_reconhecidos = {}
+        
+        for concurso in historico:
+            mes_original = concurso.get('mes_sorte', '').strip()
+            if mes_original:
+                meses_originais.add(mes_original)
+                mes_normalizado = normalizar_mes_completo(mes_original)
+                
+                if mes_normalizado:
+                    meses_normalizados[mes_original] = mes_normalizado
+                else:
+                    meses_nao_reconhecidos[mes_original] = meses_nao_reconhecidos.get(mes_original, 0) + 1
+        
+        return jsonify({
+            'success': True,
+            'total_concursos': len(historico),
+            'meses_originais_unicos': sorted(list(meses_originais)),
+            'meses_normalizados': meses_normalizados,
+            'meses_nao_reconhecidos': meses_nao_reconhecidos,
+            'total_reconhecidos': len(meses_normalizados),
+            'total_nao_reconhecidos': len(meses_nao_reconhecidos)
         })
         
     except Exception as e:
@@ -1755,8 +1764,55 @@ def fetch_latest_data():
         print(f"Erro ao buscar dados da API: {e}")
         return None
 
+@app.route('/debug/ultimo-sorteio')
+def debug_ultimo_sorteio():
+    """🔍 DEBUG: Testa análise do último sorteio"""
+    try:
+        ultimo_real = buscar_ultimo_sorteio_real()
+        if not ultimo_real:
+            return jsonify({'error': 'Não foi possível buscar último sorteio'})
+        
+        dezenas = ultimo_real['dezenas']
+        print(f"\n🔍 TESTANDO ANÁLISE DO ÚLTIMO SORTEIO:")
+        print(f"📊 Concurso: {ultimo_real['numero']}")
+        print(f"🎲 Dezenas: {dezenas}")
+        
+        # Testar análise de finais iguais
+        analise_finais = analisar_finais_iguais_ultimo_sorteio(dezenas)
+        analise_completa = analisar_ultimo_sorteio_detalhado(dezenas)
+        
+        # Teste manual com concurso 1122
+        dezenas_1122 = [6, 10, 15, 20, 25, 28, 30]
+        analise_1122 = analisar_finais_iguais_ultimo_sorteio(dezenas_1122)
+        
+        return jsonify({
+            'concurso_real': ultimo_real['numero'],
+            'dezenas_real': dezenas,
+            'analise_finais_real': analise_finais,
+            'analise_completa_real': analise_completa,
+            'teste_1122': {
+                'dezenas': dezenas_1122,
+                'analise_finais': analise_1122
+            },
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)})
+
+
 if __name__ == '__main__':
-    print("🎯 SISTEMA COMPLETO - Dia de Sorte COM TODAS AS FUNCIONALIDADES!")
+    print("🎯 SISTEMA COMPLETO - Dia de Sorte COM DADOS REAIS DA API!")
+    print("🌐 API DA CAIXA: https://servicebus2.caixa.gov.br/portaldeloterias/api/diadesorte")
+    print("✅ DADOS SEMPRE REAIS - NUNCA FICTÍCIOS!")
+    print("📊 CAMPOS INCLUÍDOS:")
+    print("   📊 numero (do último concurso)")
+    print("   📅 dataApuracao (do último sorteio)")
+    print("   💰 valorArrecadado (do último concurso)")
+    print("   📅 nomeTimeCoracaoMesSorte (mês da sorte)")
+    print("")
     print("✅ VALIDAÇÃO CORRIGIDA:")
     print("   1. ⚖️ Pares vs Ímpares (3P/4I) - SEMPRE")
     print("   2. 🔢 Finais Iguais (EXATAMENTE 2 pares) - SEMPRE")
@@ -1767,13 +1823,14 @@ if __name__ == '__main__':
     print("🌡️ MÊS DA SORTE: TODOS OS CONCURSOS + NORMALIZAÇÃO ROBUSTA!")
     print("📊 FORMATOS SUPORTADOS: 1,2,3 | Jan,Fev,Mar | Janeiro,Fevereiro,Março")
     print("📄 EXPORTAÇÃO CORRIGIDA: Formato '01 02 03 04 05 06 07 Mês'")
-    print("🌐 API REAL da Caixa integrada")
     print("")
     print("📊 ROTAS DE ESTATÍSTICAS:")
     print("   🌐 http://localhost:5110/api/estatisticas-faixas - Estatísticas de Baixos/Médios/Altos")
     print("   🌐 http://localhost:5110/api/analise-avancada?tipo=mapa_calor - Mapa de Calor")
     print("   🌐 http://localhost:5110/api/analise-avancada?tipo=pares_impares - Pares vs Ímpares")
     print("   🌐 http://localhost:5110/debug/numeros-gatilho-criativos - Números Gatilho Ultra Mega Criativos")
+    print("   🌐 http://localhost:5110/debug/meses - Análise completa da normalização")
+    print("   🌐 http://localhost:5110/api/dados-ultimo-sorteio - Dados REAIS da API")
     print("")
     print("🎯 FUNCIONALIDADES ESPECIAIS:")
     print("   🧠 Extração ultra mega criativa de números gatilho")
@@ -1783,6 +1840,7 @@ if __name__ == '__main__':
     print("   ➕➖✖️➗ 4 operações matemáticas nos números gatilho")
     print("   🔄 Inversões e transformações criativas")
     print("   💰 Exclusões criativas do valor arrecadado")
+    print("   📊 Análise de finais iguais: 2 OU MAIS grupos no último sorteio")
     print("")
     print("🌐 PORTA: 5110")
     
